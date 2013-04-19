@@ -31,6 +31,8 @@
         <activity android:name="com.therealjoshua.essentialsloadersample1.Sample1Activity" />
         <activity android:name="com.therealjoshua.essentialsloadersample1.Sample2Activity" />
         <activity android:name="com.therealjoshua.essentialsloadersample1.Sample3Activity" />
+        <activity android:name="com.therealjoshua.essentialsloadersample1.Sample4Activity" />
+        <activity android:name="com.therealjoshua.essentialsloadersample1.Sample5Activity" />
     </application>
 
 </manifest>

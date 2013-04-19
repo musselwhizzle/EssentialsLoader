@@ -8,8 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
+import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.ListView;
 
 import com.therealjoshua.essentials.bitmaploader.BitmapLoaderLocator;
 import com.therealjoshua.essentials.bitmaploader.binders.FadeImageViewBinder;
@@ -18,50 +18,29 @@ import com.therealjoshua.essentials.bitmaploader.binders.ImageViewBinder;
 /*
  * Standard listview using the loader
  */
-public class Sample1Activity extends Activity {
+public class Sample4Activity extends Activity {
 	
-	private ListView listView;
-	@SuppressWarnings("unused")
-	private MyAdapter adapter;
+	private GridView gridView;
+	private int size = 0;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		listView = new ListView(this);
-		listView.setAdapter(adapter = new MyAdapter(this));
-		
-		// this is rather unnecessary, but if you want to listen
-		// to when the renderer gets removed the listview you can
-		// and then manually stop the load. I say it's unnecessary
-		// because calling a new load automatically stops the old load
-		/*
-		listView.setRecyclerListener(new AbsListView.RecyclerListener() {
-			@Override
-			public void onMovedToScrapHeap(View view) {
-				adapter.binder.cancel((ImageView)view);
-			}
-		});*/
-		setContentView(listView);
+		gridView = new GridView(this);
+		gridView.setNumColumns(3);
+		gridView.setColumnWidth(size);
+		size = getResources().getDisplayMetrics().widthPixels/3;
+		gridView.setAdapter(new MyAdapter(this));
+		setContentView(gridView);
 	}
 	
 	private class MyAdapter extends BaseAdapter {
 		private Context context;
-		private int width;
-		private int height;
 		private ImageViewBinder binder;
-		private final int REMOTE_IMAGE_WIDTH_PX = 640;
-		private int inSampleSize = 1;
+		private int inSampleSize = 4;
 		
 		private MyAdapter(Context context) {
 			this.context = context;
-			width = context.getResources().getDisplayMetrics().widthPixels;
-			
-			// if the screen width is less than the loaded image width
-			// lets compress the image and save memory
-			if (width < REMOTE_IMAGE_WIDTH_PX) {
-				inSampleSize = 2;
-			}
-			height = (int)(width / (16/9f));
 			
 			// create a fade binder which is cross fade in the loaded image with 
 			// what's currently in the image view
@@ -92,7 +71,7 @@ public class Sample1Activity extends Activity {
 				imageView = (ImageView)convertView;
 			} else {
 				imageView = new ImageView(context);
-				AbsListView.LayoutParams p = new AbsListView.LayoutParams(width, height);
+				AbsListView.LayoutParams p = new AbsListView.LayoutParams(size, size);
 				imageView.setLayoutParams(p);
 			}
 			String url = getItem(position);
@@ -101,7 +80,6 @@ public class Sample1Activity extends Activity {
 			binder.load(imageView, url, opts);
 			return imageView;
 		}
-		
 	}
 	
 }

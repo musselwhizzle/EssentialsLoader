@@ -51,16 +51,16 @@ public class SingleViewBinder implements BitmapLoader.Callback {
 		loadingDrawable = context.getResources().getDrawable(resId);
 	}
 	
-	public Cancelable load(String url) {
-		return load(url, null, null);
+	public Cancelable load(String uri) {
+		return load(uri, null, null);
 	}
 	
-	public Cancelable load(String url, BitmapFactory.Options options) {
-		return load(url, options, null);
+	public Cancelable load(String uri, BitmapFactory.Options options) {
+		return load(uri, options, null);
 	}
 	
-	public Cancelable load(String url, BitmapFactory.Options options, Rect outPadding) {
-		quitable = loader.load(url, this, options, outPadding);
+	public Cancelable load(String uri, BitmapFactory.Options options, Rect outPadding) {
+		quitable = loader.load(uri, this, options, outPadding);
 		return quitable;
 	}
 	
@@ -69,11 +69,11 @@ public class SingleViewBinder implements BitmapLoader.Callback {
 	}
 
 	@Override
-	public void onBitmap(Bitmap bitmap, BitmapLoader.BitmapSource source, BitmapLoader.LoadRequest request) {
+	public void onSuccess(Bitmap bitmap, BitmapLoader.BitmapSource source, BitmapLoader.LoadRequest request) {
 	}
 
 	@Override
-	public void onError(String url, Throwable error, BitmapLoader.ErrorSource source) {
+	public void onError(Throwable error, BitmapLoader.ErrorSource source, BitmapLoader.LoadRequest request) {
 	}
 	
 }

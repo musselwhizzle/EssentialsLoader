@@ -36,7 +36,6 @@ public class Sample2Activity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		loader = BitmapLoaderLocator.getBitmapLoader();
-		loader.clearCache();
 		viewPager = new ViewPager(this);
 		viewPager.setAdapter(new MyAdapter(this));
 		setContentView(viewPager);
@@ -136,17 +135,17 @@ public class Sample2Activity extends Activity {
 		}
 		
 		@Override
-		public void onBitmap(Bitmap bitmap, BitmapSource source, LoadRequest request) {
+		public void onSuccess(Bitmap bitmap, BitmapSource source, LoadRequest request) {
 			loadingView.setVisibility(View.GONE);
 			targetView.setImageBitmap(bitmap);
-			super.onBitmap(bitmap, source, request);
+			super.onSuccess(bitmap, source, request);
 		}
 		
 		@Override
-		public void onError(String url, Throwable error, ErrorSource source) {
+		public void onError(Throwable error, ErrorSource source, LoadRequest request) {
 			loadingView.setVisibility(View.GONE);
 			targetView.setImageDrawable(getFaultDrawable());
-			super.onError(url, error, source);
+			super.onError(error, source, request);
 		}
 		
 	}

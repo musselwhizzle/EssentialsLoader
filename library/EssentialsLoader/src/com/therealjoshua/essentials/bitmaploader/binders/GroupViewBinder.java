@@ -90,17 +90,17 @@ public class GroupViewBinder<T extends View> {
 		this.faultDrawableFactory = factory;
 	}
 	
-	public Cancelable load(T view, String url) {
-		return load(view, url, null, null);
+	public Cancelable load(T view, String uri) {
+		return load(view, uri, null, null);
 	}
 	
-	public Cancelable load(T view, String url, BitmapFactory.Options options) {
-		return load(view, url, options, null);
+	public Cancelable load(T view, String uri, BitmapFactory.Options options) {
+		return load(view, uri, options, null);
 	}
 	
-	public Cancelable load(T view, String url, BitmapFactory.Options options, Rect outPadding) {
+	public Cancelable load(T view, String uri, BitmapFactory.Options options, Rect outPadding) {
 		cancel(view);
-		Cancelable q = loader.load(url, new Callback(view), options, outPadding);
+		Cancelable q = loader.load(uri, new Callback(view), options, outPadding);
 		cancelables.put(view, q);
 		return q;
 	}
@@ -119,11 +119,11 @@ public class GroupViewBinder<T extends View> {
 		}
 	}
 	
-	protected void onBitmap(T view, Bitmap bitmap, BitmapSource source, LoadRequest request) {
+	protected void onSuccess(T view, Bitmap bitmap, BitmapSource source, LoadRequest request) {
 		
 	}
 	
-	protected void onError(T view, String url, Throwable error, ErrorSource source) {
+	protected void onError(T view, Throwable error, ErrorSource source, LoadRequest request) {
 		
 	}
 	
@@ -135,18 +135,18 @@ public class GroupViewBinder<T extends View> {
 		}
 		
 		@Override
-		public void onBitmap(Bitmap bitmap, BitmapSource source, LoadRequest request) {
+		public void onSuccess(Bitmap bitmap, BitmapSource source, LoadRequest request) {
 			T view = ref.get();
 			if (view != null) {
-				GroupViewBinder.this.onBitmap(view, bitmap, source, request);
+				GroupViewBinder.this.onSuccess(view, bitmap, source, request);
 			}
 		}
 
 		@Override
-		public void onError(String url, Throwable error, ErrorSource source) {
+		public void onError(Throwable error, ErrorSource source, LoadRequest request) {
 			T view = ref.get();
 			if (view != null) {
-				GroupViewBinder.this.onError(view, url, error, source);
+				GroupViewBinder.this.onError(view,  error, source, request);
 			}
 		}
 	}

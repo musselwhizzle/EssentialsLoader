@@ -65,7 +65,4 @@ public class BitmapLoaderLocator {
 		return caches.remove(name);
 	}
 	
-	
-	
-	
 }

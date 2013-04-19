@@ -50,12 +50,12 @@ public class Sample3Activity extends Activity {
 			if (cancelable != null) cancelable.cancel();
 			cancelable = loader.load(Images.ANIMAL_IMAGES[position], new BitmapLoader.Callback() {
 				@Override
-				public void onError(String arg0, Throwable arg1, ErrorSource arg2) {
+				public void onError(Throwable error, ErrorSource source, LoadRequest request) {
 					
 				}
 				
 				@Override
-				public void onBitmap(Bitmap bitmap, BitmapSource source, LoadRequest request) {
+				public void onSuccess(Bitmap bitmap, BitmapSource source, LoadRequest request) {
 					MyRemoteView.this.bitmap = bitmap;
 					requestLayout();
 					invalidate();
@@ -63,6 +63,9 @@ public class Sample3Activity extends Activity {
 			});
 		}
 		
+		/*
+		 * this is not production code
+		 */
 		@Override
 		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 			if (bitmap == null) {

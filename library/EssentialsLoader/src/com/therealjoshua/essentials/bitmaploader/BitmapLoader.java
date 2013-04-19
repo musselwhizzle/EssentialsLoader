@@ -45,7 +45,7 @@ import com.therealjoshua.essentials.bitmaploader.cache.Cache;
 import com.therealjoshua.essentials.logger.Log;
 
 /*
- * FEATURES
+ * TO DO - FEATURES
  * 
  * 1) Allow for different content providers like file:// or asset
  * Could maybe do this be using ContentHandler (http://developer.android.com/reference/java/net/ContentHandler.html)
@@ -124,7 +124,7 @@ public class BitmapLoader {
 		 * 		disk cache, or external (from the web).
 		 * @param request The parameters used in the load() call to request the image
 		 */
-		public void onBitmap(Bitmap bitmap, BitmapSource source, LoadRequest request);
+		public void onSuccess(Bitmap bitmap, BitmapSource source, LoadRequest request);
 		
 		/**
 		 * Called when a fault happens trying to load the image. This could be from the 
@@ -134,7 +134,7 @@ public class BitmapLoader {
 		 * @param error The exception that was originally about the error
 		 * @param source Where the fault occurred in the loading sequence. 
 		 */
-		public void onError(String url, Throwable error, ErrorSource source);
+		public void onError(Throwable error, ErrorSource source, LoadRequest request);
 	}
 	
 	/**
@@ -170,11 +170,11 @@ public class BitmapLoader {
 	 */
 	public static class LoadRequest {
 		private LoadRequest() {}
-		private String url;
+		private String uri;
 		private BitmapFactory.Options options;
 		private Rect outPadding;
 		
-		public String getUrl() { return url; }
+		public String getUri() { return uri; }
 		public BitmapFactory.Options getOptions() { return options; }
 		public Rect geOutPadding() { return outPadding; }
 	}
@@ -189,10 +189,6 @@ public class BitmapLoader {
 	private Context appContext;
 	private ErrorLogFactory errorLogFactory;
 	
-	/**
-	 * The content handler allows for different types of protocols to be read in
-	 */
-//	private ContentHandler bitmapContentHandler;
 	
 	/**
 	 * Constructor
@@ -250,64 +246,75 @@ public class BitmapLoader {
 	 * IO errors such the call has failed previously. If this is the case and the error is considered
 	 * valid, the call will return immediately. 
 	 * 
-	 * @param url Url of the image to load
+	 * @param uri Uri of the image to load. Can be http:// or file://
 	 * @param callback The callback for when a success of fail happens. A null value is ok.
 	 * @return a token which may be null which can be used to cancel the loading task
 	 */
-	public Cancelable load(String url, Callback callback) {
-		return load(url, callback, null, null);
+	public Cancelable load(String uri, Callback callback) {
+		return load(uri, callback, null, null);
 	}
 	
 	/**
+	 * Call to load an bitmap. The call will first check if the image is available in memory, 
+	 * then it moves to checking the disk cache and finally it will go to an external source (the web). 
+	 * Before checking for the image on the web, the call will check to see if the url is in a cache of
+	 * IO errors such the call has failed previously. If this is the case and the error is considered
+	 * valid, the call will return immediately.
 	 * 
-	 * @param url Url of the image to load
+	 * @param uri Uri of the image to load. Can be http:// or file://
 	 * @param callback The callback for when a success of fail happens. A null value is ok.
 	 * @param options the {BitmapFactory.Options} as used in the BitmapFactory.decode method
 	 * @return a token which may be null which can be used to cancel the loading task
 	 */
-	public Cancelable load(String url, Callback callback, BitmapFactory.Options options) {
-		return load(url, callback, options, null);
+	public Cancelable load(String uri, Callback callback, BitmapFactory.Options options) {
+		return load(uri, callback, options, null);
 	}
 	
 	/**
+	 * Call to load an bitmap. The call will first check if the image is available in memory, 
+	 * then it moves to checking the disk cache and finally it will go to an external source (the web). 
+	 * Before checking for the image on the web, the call will check to see if the url is in a cache of
+	 * IO errors such the call has failed previously. If this is the case and the error is considered
+	 * valid, the call will return immediately.
 	 * 
-	 * @param url Url of the image to load
+	 * @param uri Uri of the image to load. Can be http:// or file://
 	 * @param callback The callback for when a success of fail happens. A null value is ok.
 	 * @param options the {BitmapFactory.Options} as used in the BitmapFactory.decode method
 	 * @param outPadding the {Rect} as used in the BitmapFactory.decode method
 	 * @return a token which may be null which can be used to cancel the loading task
 	 */
 	@SuppressLint("NewApi")
-	public Cancelable load(String url, Callback callback, BitmapFactory.Options options, Rect outPadding) {
+	public Cancelable load(String uri, Callback callback, BitmapFactory.Options options, Rect outPadding) {
+		
+		LoadRequest request = new LoadRequest();
+		request.uri = uri;
+		request.options = options;
+		request.outPadding = outPadding;
 		
 		// if the url is blank, fault out immediately
-		if (TextUtils.isEmpty(url)) {
-			if (callback != null) callback.onError(url, 
-					new IllegalArgumentException("Url is empty"), 
-					ErrorSource.ARGUMENT);
+		if (TextUtils.isEmpty(uri)) {
+			if (callback != null) callback.onError(
+					new IllegalArgumentException("Uri is empty"), 
+					ErrorSource.ARGUMENT,
+					request);
 			return null;
 		}
 		
 		// if the url is in our cached urls, fault out immediately
-		ErrorLog error = getValidError(url);
+		ErrorLog error = getValidError(uri);
 		if (error != null) {
-			if (callback != null) callback.onError(url, 
-					error.getError(), 
-					ErrorSource.ERROR_CACHE);
+			if (callback != null) callback.onError(error.getError(), 
+					ErrorSource.ERROR_CACHE, 
+					request);
 			return null;
 		}
-		
-		LoadRequest request = new LoadRequest();
-		request.url = url;
-		request.options = options;
-		request.outPadding = outPadding;
 		
 		Bitmap bitmap = null;
 		
 		// check if the image is in memory
-		bitmap = getFromMemCache(url, options);
+		bitmap = getFromMemCache(uri, options);
 		if (bitmap != null) {
-			if (callback != null) callback.onBitmap(bitmap, BitmapSource.MEMORY, request);
+			if (callback != null) callback.onSuccess(bitmap, BitmapSource.MEMORY, request);
 			return null;
 		}
 		
@@ -411,6 +418,9 @@ public class BitmapLoader {
 	private Bitmap loadExternalBitmap(String url, BitmapFactory.Options options, Rect outPadding) throws IOException {
 		URL u = new URL(url);
 		URLConnection connection = u.openConnection();
+//		connection.setReadTimeout(10000); // sooo....this is hardcoded. probably need another way
+		// of processing bitmaps so that a user can control the connection better such as 
+		// disabling the httpcache
 		final int IO_BUFFER_SIZE = 8 * 1024;
 		InputStream in = new BufferedInputStream(connection.getInputStream(), IO_BUFFER_SIZE);
 		Bitmap bitmap = BitmapFactory.decodeStream(in, outPadding, options);
@@ -497,15 +507,15 @@ public class BitmapLoader {
 			
 			// if task is not canceled, check if the image is in the memory
 			if (!isCancelled()) {
-				bitmap = getFromMemCache(request.url, request.options);
+				bitmap = getFromMemCache(request.uri, request.options);
 				if (bitmap != null) {
 					source = BitmapSource.MEMORY;
 					// add to the disk cache while here
 					// at this point, we don't care if the task has been canceled
 					if (diskCache != null) {
-						boolean hasItem = diskCache.hasObject(generateKey(request.url, request.options));
+						boolean hasItem = diskCache.hasObject(generateKey(request.uri, request.options));
 						if (!hasItem) {
-							putInDiskCache(request.url, request.options, bitmap);
+							putInDiskCache(request.uri, request.options, bitmap);
 						}
 					}
 					return bitmap; 
@@ -517,20 +527,20 @@ public class BitmapLoader {
 			// if task is not canceled, check if the image is in the disk cache
 			if (!isCancelled()) {
 				try {
-					bitmap = getFromDiskCache(request.url, request.options, request.outPadding);
+					bitmap = getFromDiskCache(request.uri, request.options, request.outPadding);
 				} catch (OutOfMemoryError e) {
 					// clear up some memory and let's try again
 					clearMemCache();
 					System.gc();
 					try {
-						bitmap = getFromDiskCache(request.url, request.options, request.outPadding);
+						bitmap = getFromDiskCache(request.uri, request.options, request.outPadding);
 					} catch (OutOfMemoryError e2) {
 						// give up
 					}
 				}
 				if (bitmap != null) {
 					source = BitmapSource.DISK;
-					putInMemCache(request.url, request.options, bitmap);
+					putInMemCache(request.uri, request.options, bitmap);
 					Log.i(TAG, "transaction time : " + (System.currentTimeMillis() - s));
 					return bitmap; 
 				}
@@ -540,7 +550,7 @@ public class BitmapLoader {
 			if (!isCancelled()) {
 				
 				// make sure the url isn't in the cached errors
-				ErrorLog loadError = getError(request.url);
+				ErrorLog loadError = getError(request.uri);
 				if (loadError != null) {
 					exc = loadError.getError();
 					errorSource = ErrorSource.ERROR_CACHE;
@@ -559,14 +569,17 @@ public class BitmapLoader {
 				}
 				
 				// no errors cached, valid internet connection, load the image
+				
+				// TODO: if the uri protocol is of file:// seems needless to cache the image
+				// to the disk cache....right? Or does bitmap options matter here. 
 				try {
-					bitmap = loadExternalBitmap(request.url, request.options, request.outPadding);
+					bitmap = loadExternalBitmap(request.uri, request.options, request.outPadding);
 				} catch (OutOfMemoryError e) {
 					clearMemCache();
 					System.gc();
 					try {
 						// try 1 more time
-						bitmap = loadExternalBitmap(request.url, request.options, request.outPadding);
+						bitmap = loadExternalBitmap(request.uri, request.options, request.outPadding);
 					} catch (OutOfMemoryError in2) {
 						// give up
 						exc = in2;
@@ -580,16 +593,16 @@ public class BitmapLoader {
 					errorSource = ErrorSource.EXTERNAL;
 				}
 				if (exc != null && errorLogFactory != null) {
-					ErrorLog errorLog = errorLogFactory.createErrorLog(request.url, exc, ErrorSource.EXTERNAL);
-					errors.put(request.url, errorLog);
+					ErrorLog errorLog = errorLogFactory.createErrorLog(request.uri, exc, ErrorSource.EXTERNAL);
+					errors.put(request.uri, errorLog);
 				}
 				
 				if (bitmap != null) {
 					source = BitmapSource.EXTERNAL;
 					// add to the disk cache while here
 					// at this point, we don't care if the task has been canceled
-					putInMemCache(request.url, request.options, bitmap);
-					putInDiskCache(request.url, request.options, bitmap);
+					putInMemCache(request.uri, request.options, bitmap);
+					putInDiskCache(request.uri, request.options, bitmap);
 				}
 			}
 			Log.i(TAG, "transaction time : " + (System.currentTimeMillis() - s));
@@ -603,9 +616,9 @@ public class BitmapLoader {
 			if (callback == null) return;
 			
 			if (exc != null || result == null) {
-				callback.onError(request.url, exc, errorSource);
+				callback.onError(exc, errorSource, request);
 			} else {
-				callback.onBitmap(result, source, request);
+				callback.onSuccess(result, source, request);
 			}
 			request = null;
 			callback = null;
@@ -636,16 +649,16 @@ public class BitmapLoader {
 			request = params[0];
 			
 			if (!isCancelled() && diskCache != null && checkDiskCache) {
-				boolean hasObject = diskCache.hasObject(generateKey(request.url, request.options));
+				boolean hasObject = diskCache.hasObject(generateKey(request.uri, request.options));
 				if (hasObject) {
-					getFromDiskCache(request.url, request.options, request.outPadding);
+					getFromDiskCache(request.uri, request.options, request.outPadding);
 					source = BitmapSource.DISK;
 					return null;
 				}
 			}
 			
 			if (!isCancelled()) {
-				ErrorLog loadError = getError(request.url);
+				ErrorLog loadError = getError(request.uri);
 				if (loadError != null) {
 					exc = loadError.getError();
 					errorSource = ErrorSource.ERROR_CACHE;
@@ -660,7 +673,7 @@ public class BitmapLoader {
 				}
 				
 				try {
-					loadExternalBitmap(request.url, request.options, request.outPadding);
+					loadExternalBitmap(request.uri, request.options, request.outPadding);
 					source = BitmapSource.EXTERNAL;
 					return null;
 				} catch (IOException e) {
@@ -676,10 +689,9 @@ public class BitmapLoader {
 		protected void onPostExecute(Bitmap result) {
 			super.onPostExecute(result);
 			if (isCancelled() || callback == null) return;
-			if (exc != null) callback.onError(request.url, exc, errorSource);
-			else callback.onBitmap(null, source, request);
+			if (exc != null) callback.onError(exc, errorSource, request);
+			else callback.onSuccess(null, source, request);
 		}
-		
 	}
 	
 	

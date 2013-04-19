@@ -10,7 +10,10 @@ import android.os.Build;
 import android.view.View;
 
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader;
+import com.therealjoshua.essentials.bitmaploader.BitmapLoader.BitmapSource;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.Cancelable;
+import com.therealjoshua.essentials.bitmaploader.BitmapLoader.ErrorSource;
+import com.therealjoshua.essentials.bitmaploader.BitmapLoader.LoadRequest;
 
 public class BackgroundBinder extends GroupViewBinder<View> {
 	
@@ -19,10 +22,10 @@ public class BackgroundBinder extends GroupViewBinder<View> {
 	}
 	
 	@Override
-	public Cancelable load(View view, String url, BitmapFactory.Options options, Rect outPadding) {
+	public Cancelable load(View view, String uri, BitmapFactory.Options options, Rect outPadding) {
 		cancel(view);
 		setBackground(view, getLoadingDrawable(view));
-		return super.load(view, url, options, outPadding);
+		return super.load(view, uri, options, outPadding);
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -37,14 +40,14 @@ public class BackgroundBinder extends GroupViewBinder<View> {
 	}
 
 	@Override
-	public void onBitmap(View view, Bitmap bitmap, BitmapLoader.BitmapSource source, BitmapLoader.LoadRequest request) {
+	public void onSuccess(View view, Bitmap bitmap, BitmapSource source, LoadRequest request) {
 		if (view == null) return;
 		BitmapDrawable d = new BitmapDrawable(view.getContext().getResources(), bitmap);
 		setBackground(view, d);
 	}
 
 	@Override
-	public void onError(View  view, String url, Throwable error, BitmapLoader.ErrorSource source) {
+	public void onError(View  view, Throwable error, ErrorSource source, LoadRequest request) {
 		setBackground(view, getFaultDrawable(view));
 	}
 	

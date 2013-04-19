@@ -10,7 +10,10 @@ import android.graphics.drawable.TransitionDrawable;
 import android.widget.ImageView;
 
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader;
+import com.therealjoshua.essentials.bitmaploader.BitmapLoader.BitmapSource;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.Cancelable;
+import com.therealjoshua.essentials.bitmaploader.BitmapLoader.ErrorSource;
+import com.therealjoshua.essentials.bitmaploader.BitmapLoader.LoadRequest;
 
 public class FadeImageViewBinder extends ImageViewBinder {
 	private int transitionDuration = 250;
@@ -26,14 +29,15 @@ public class FadeImageViewBinder extends ImageViewBinder {
 	}
 	
 	@Override
-	public Cancelable load(ImageView imageView, String url, Options options, Rect outPadding) {
-		return super.load(imageView, url, options, outPadding);
+	public Cancelable load(ImageView imageView, String uri, Options options, Rect outPadding) {
+		return super.load(imageView, uri, options, outPadding);
 	}
 	
 	@Override
-	public void onBitmap(ImageView imageView, Bitmap bitmap, BitmapLoader.BitmapSource source, BitmapLoader.LoadRequest request) {
-		if (source == BitmapLoader.BitmapSource.MEMORY || !imageView.isShown()) {
-			super.onBitmap(imageView, bitmap, source, request);
+	public void onSuccess(ImageView imageView, Bitmap bitmap, 
+			BitmapSource source, LoadRequest request) {
+		if (source == BitmapSource.MEMORY || !imageView.isShown()) {
+			super.onSuccess(imageView, bitmap, source, request);
 		} else {
 			Drawable currentDrawable = imageView.getDrawable();
 			if (currentDrawable == null) {
@@ -47,9 +51,9 @@ public class FadeImageViewBinder extends ImageViewBinder {
 	}
 	
 	@Override
-	public void onError(ImageView imageView, String url, Throwable error, BitmapLoader.ErrorSource source) {
+	public void onError(ImageView imageView, Throwable error, ErrorSource source, LoadRequest request) {
 		if (source != BitmapLoader.ErrorSource.EXTERNAL) {
-			super.onError(imageView, url, error, source);
+			super.onError(imageView, error, source, request);
 		}
 		else {
 			Drawable currentDrawable = imageView.getDrawable();

@@ -17,6 +17,7 @@ public class App extends Application {
 	
 	long DEFAULT_CACHE_SIZE = 16 * 1024 * 1024; // 16 MB
 	
+	
 	@Override
 	public void onCreate() {
 		super.onCreate();
