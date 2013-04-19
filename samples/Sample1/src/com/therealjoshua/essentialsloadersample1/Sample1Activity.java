@@ -3,7 +3,6 @@ package com.therealjoshua.essentialsloadersample1;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.BitmapFactory;
-import android.graphics.BitmapFactory.Options;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +15,9 @@ import com.therealjoshua.essentials.bitmaploader.BitmapLoaderLocator;
 import com.therealjoshua.essentials.bitmaploader.binders.FadeImageViewBinder;
 import com.therealjoshua.essentials.bitmaploader.binders.ImageViewBinder;
 
+/*
+ * Standard listview using the loader
+ */
 public class Sample1Activity extends Activity {
 	
 	private ListView listView;

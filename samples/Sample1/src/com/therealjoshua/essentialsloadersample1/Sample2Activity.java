@@ -24,6 +24,9 @@ import com.therealjoshua.essentials.bitmaploader.BitmapLoader.LoadRequest;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoaderLocator;
 import com.therealjoshua.essentials.bitmaploader.binders.SingleViewBinder;
 
+/*
+ * A view pager using the bitmap loader
+ */
 public class Sample2Activity extends Activity {
 	
 	private ViewPager viewPager;

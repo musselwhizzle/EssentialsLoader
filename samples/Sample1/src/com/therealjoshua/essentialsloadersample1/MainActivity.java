@@ -1,5 +1,7 @@
 package com.therealjoshua.essentialsloadersample1;
 
+import com.therealjoshua.essentials.bitmaploader.BitmapLoaderLocator;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,16 +22,22 @@ public class MainActivity extends Activity {
 		Button btn;
 		
 		btn = new Button(this);
-		btn.setText("Sample 1");
-		btn.setId(1);
-		btn.setOnClickListener(clickListener);
+		btn.setText("Clear Cache");
+		btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				BitmapLoaderLocator.getBitmapLoader().clearCache();
+			}
+		});
 		ll.addView(btn);
 		
-		btn = new Button(this);
-		btn.setText("Sample 2");
-		btn.setId(2);
-		btn.setOnClickListener(clickListener);
-		ll.addView(btn);
+		for (int i=1; i<=3; i++) {
+			btn = new Button(this);
+			btn.setText("Sample " + i);
+			btn.setId(i);
+			btn.setOnClickListener(clickListener);
+			ll.addView(btn);
+		}
 	}
 	
 	private View.OnClickListener clickListener = new View.OnClickListener() {
@@ -38,6 +46,7 @@ public class MainActivity extends Activity {
 			switch (v.getId()) {
 				case 1: startActivity(new Intent(MainActivity.this, Sample1Activity.class)); break;
 				case 2: startActivity(new Intent(MainActivity.this, Sample2Activity.class)); break;
+				case 3: startActivity(new Intent(MainActivity.this, Sample3Activity.class)); break;
 			}
 		}
 	};

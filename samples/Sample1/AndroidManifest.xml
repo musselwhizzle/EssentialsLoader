@@ -30,6 +30,7 @@
         </activity>
         <activity android:name="com.therealjoshua.essentialsloadersample1.Sample1Activity" />
         <activity android:name="com.therealjoshua.essentialsloadersample1.Sample2Activity" />
+        <activity android:name="com.therealjoshua.essentialsloadersample1.Sample3Activity" />
     </application>
 
 </manifest>
