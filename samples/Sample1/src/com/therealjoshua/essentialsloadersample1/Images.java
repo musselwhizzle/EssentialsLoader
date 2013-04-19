@@ -1,0 +1,67 @@
+package com.therealjoshua.essentialsloadersample1;
+
+public class Images {
+
+	public static final String[] SIZE_300_187 = new String[] {
+		"https://lh4.googleusercontent.com/-GvWcs1j5sIo/ULEf09UHsAI/AAAAAAAAAH0/Ad0Fxfxipa8/s300/cat1.jpg",
+		"https://lh4.googleusercontent.com/-Jteu0TQNo3A/ULEf058_ofI/AAAAAAAAAH4/X2d8aXm_xeQ/s300/cat10.jpg",
+		"https://lh3.googleusercontent.com/-khTncrivjjI/ULEf00NKrII/AAAAAAAAAHw/LEPkFdAzNF8/s300/cat11.jpg",
+		"https://lh4.googleusercontent.com/-WZfYH9eBGmA/ULEf1YDRhAI/AAAAAAAAAIA/fBYX7dTxbUQ/s300/cat12.jpg",
+		"https://lh6.googleusercontent.com/-5LL5_Zjll54/ULEf1mYGPCI/AAAAAAAAAIE/As8OSCPUQZ0/s300/cat14.jpg",
+		"https://lh4.googleusercontent.com/-BnZwma7OxDI/ULEf2NySMrI/AAAAAAAAAII/ufHKASaq9qo/s300/cat15.jpg",
+		"https://lh4.googleusercontent.com/-wqt4XOzOp4Q/ULEf2d3R9fI/AAAAAAAAAIM/af8VbnQynV4/s300/cat16.jpg",
+		"https://lh4.googleusercontent.com/-iWc7qDzOO8w/ULEf2WfROxI/AAAAAAAAAIQ/vw4cFahx_gQ/s300/cat17.jpg",
+		"https://lh6.googleusercontent.com/-MkqE8wInvvY/ULEf206xlPI/AAAAAAAAAIU/9_qNL6PY0zM/s300/cat18.jpg",
+		"https://lh6.googleusercontent.com/-ZWs1MyezFeI/ULEf3OUUURI/AAAAAAAAAIc/yTleN4kDnRc/s300/cat19.jpg",
+		"https://lh6.googleusercontent.com/-TyHUjosw5XU/ULEf3CzICeI/AAAAAAAAAIk/2zW0BNpTKCg/s300/cat2.jpg",
+		"https://lh3.googleusercontent.com/--XI3zyGtIhc/ULEf3VTUhiI/AAAAAAAAAIg/iVx9Vgxgk1o/s300/cat20.jpg",
+		"https://lh5.googleusercontent.com/-922MBEFSTpE/ULEf35hkoBI/AAAAAAAAAIo/W9g9-jhs-sE/s300/cat21.jpg",
+		"https://lh4.googleusercontent.com/-eTfQ6Wp_3XE/ULEf4HX60qI/AAAAAAAAAIs/bs3orB3aFNM/s300/cat22.jpg",
+		"https://lh6.googleusercontent.com/-Ln-zTy_mIT4/ULEf4fJDtoI/AAAAAAAAAIw/c9Et56xwjKs/s300/cat23.jpg",
+		"https://lh6.googleusercontent.com/-IYdTUEtBXaE/ULEf43PptJI/AAAAAAAAAI0/BxxRt-u6o20/s300/cat3.jpg",
+		"https://lh5.googleusercontent.com/-StNY78wBuok/ULEf5HxDnGI/AAAAAAAAAI4/LKT4Saqc1oI/s300/cat4.jpg",
+		"https://lh3.googleusercontent.com/-9pmearZ8s6s/ULEf5EGNhhI/AAAAAAAAAI8/D8sjk2YVXww/s300/cat5.jpg",
+		"https://lh3.googleusercontent.com/-xqvRw8ljhz4/ULEf5W6o_vI/AAAAAAAAAJA/45eMkKM1Fmg/s300/cat6.jpg",
+		"https://lh6.googleusercontent.com/-UkGrcm7QssU/ULEf5zbRlTI/AAAAAAAAAJE/jgB36XVkpJo/s300/cat7.jpg",
+		"https://lh3.googleusercontent.com/-UtWqBCkBsJk/ULEf6Oc9HRI/AAAAAAAAAJI/4iHPrzq35NA/s300/cat8.jpg",
+		"https://lh5.googleusercontent.com/-zrFV5v9uNAQ/ULEf6ZP-Y5I/AAAAAAAAAJM/C6_gomMac8M/s300/cat9.jpg",
+		"https://lh3.googleusercontent.com/-UtWqBCkBsJk/ULEf6Oc9HRI/AAAAAAAAAJI/4iHPrzq35NA/s300/cat8.jpg"
+	};
+	
+	public static String[] ANIMAL_IMAGES = new String[] {
+		"https://lh4.googleusercontent.com/-ntI0quzcfpg/UXB9iDhRSlI/AAAAAAAAASI/31ci2btyHiQ/s640/p08.jpg",
+		"https://lh5.googleusercontent.com/-to6LxJO6okI/UXB9imBQVHI/AAAAAAAAAOM/UNsQbi4Z_BU/s640/k07.jpg",
+		"https://lh6.googleusercontent.com/-Y19ofRLk8Hc/UXB9i0liymI/AAAAAAAAAOU/UptFWg-h4Bs/s640/k01.jpg",
+		"https://lh6.googleusercontent.com/-XseiEWKfYbw/UXB9jpTtAgI/AAAAAAAAAOc/iBnanAWEu2Q/s640/k02.jpg",
+		"https://lh3.googleusercontent.com/-Pussd2artNM/UXB9j5hTuzI/AAAAAAAAAOk/imbu5u-nPn4/s640/k03.jpg",
+		"https://lh5.googleusercontent.com/-IdbAM-7L1J4/UXB9keOvxmI/AAAAAAAAAOs/poX0MQWyAAw/s640/k04.jpg",
+		"https://lh4.googleusercontent.com/-T5gP5baroh4/UXB9khido-I/AAAAAAAAAO0/W9nLJZYrt20/s640/k05.jpg",
+		"https://lh6.googleusercontent.com/-vcjNeXUL0MI/UXB9lNOt2vI/AAAAAAAAAO8/0vXdTjcs5cc/s640/k08.jpg",
+		"https://fault.google.com/no/image/should/be/here.jpg",
+		"https://lh6.googleusercontent.com/-jyP_fHK1YbM/UXB9ls2tOlI/AAAAAAAAAPE/VkX5WoHTllk/s640/k09.jpg",
+		"https://lh4.googleusercontent.com/-OYHlhTemJ7A/UXB9mOtLv4I/AAAAAAAAAPM/MTUeP9Z1a1o/s640/k10.jpg",
+		"https://lh4.googleusercontent.com/-8aaZUFbsgXo/UXB9mszrc1I/AAAAAAAAAPU/frNTLvwfZ2E/s640/k11.jpg",
+		"https://lh6.googleusercontent.com/-Dt8Of10fS1M/UXB9nRtu1HI/AAAAAAAAAPc/fBkHkcTx5LM/s640/k13.jpg",
+		"https://lh3.googleusercontent.com/-G4Iv9QEKUZ8/UXB9njcA2LI/AAAAAAAAAPk/t9WvHiE9Bt8/s640/k14.jpg",
+		"https://lh3.googleusercontent.com/-VWxbByi1oWs/UXB9ocalgjI/AAAAAAAAAPs/wCXwS7Ty2Ig/s640/k15.jpg",
+		"https://lh5.googleusercontent.com/-x0q8YiqbLGs/UXB9ok6e9tI/AAAAAAAAAP0/lebEp-Xk2lY/s640/k16.jpg",
+		"https://lh6.googleusercontent.com/-cfcxuq9HjpI/UXB9pE316kI/AAAAAAAAAP8/RZ-YLYope2E/s640/k17.jpg",
+		"https://lh6.googleusercontent.com/-4oreU7vstpI/UXB9pg_nEOI/AAAAAAAAAQE/leHUvwxjRIk/s640/k18.jpg",
+		"https://lh5.googleusercontent.com/-VpqAz7bA8Zk/UXB9p2hH3pI/AAAAAAAAAQM/52fMkJdICEA/s640/p01.jpg",
+		"https://lh5.googleusercontent.com/-QPYWWe3AP2U/UXB9qt18T6I/AAAAAAAAAQU/v8mQNIFtRrU/s640/p02.jpg",
+		"https://lh5.googleusercontent.com/-1xAHdWQWa6M/UXB9q10Ju1I/AAAAAAAAAQc/HjMjOpbT6q4/s640/p03.jpg",
+		"https://lh5.googleusercontent.com/-_j2qrovnfQM/UXB9rQ9JfQI/AAAAAAAAAQk/IGcMzCLDO9g/s640/p04.jpg",
+		"https://lh4.googleusercontent.com/-ZjkuENOpouA/UXB9r92QkaI/AAAAAAAAAQs/gEKxbEg8dt4/s640/p05.jpg",
+		"https://lh4.googleusercontent.com/-n5BgAIxCEIs/UXB9sYjak9I/AAAAAAAAAQ4/wzRJnBwV-1w/s640/p06.jpg",
+		"https://lh5.googleusercontent.com/-5zfCN1IVFzA/UXB9tI-wgvI/AAAAAAAAARA/B03NNcSbtHA/s640/p07.jpg",
+		"https://lh3.googleusercontent.com/-EN_FO0XMYdU/UXB9tTY5PsI/AAAAAAAAARI/3JG9udwGufc/s640/p09.jpg",
+		"https://lh6.googleusercontent.com/-yj3J0MCvJOI/UXB9tu9rb0I/AAAAAAAAARM/24SueHA5NsE/s640/p10.jpg",
+		"https://lh4.googleusercontent.com/-wtbYgYvqvFg/UXB9uZ3ykUI/AAAAAAAAARU/OG1mN0KneBk/s640/p11.jpg",
+		"https://lh4.googleusercontent.com/-9J2Zg-adXMw/UXB9uh53b2I/AAAAAAAAARc/hY9R9pV_5t4/s640/p12.jpg",
+		"https://lh5.googleusercontent.com/-df5B4PDbpew/UXB9vUHz4nI/AAAAAAAAARo/OjsMFZH9150/s640/p13.jpg",
+		"https://lh6.googleusercontent.com/-eN6AaXGEz2w/UXB9vyi84QI/AAAAAAAAARw/q8HeByIbqKg/s640/p14.jpg",
+		"https://lh3.googleusercontent.com/-mCDF9VdlawQ/UXB9wFVaIfI/AAAAAAAAAR4/yxc-2dMG7Ak/s640/p15.jpg",
+		"https://lh6.googleusercontent.com/-JNsX8Wxc_ww/UXB9wVB0j7I/AAAAAAAAAR8/rE6Bw1DYEa8/s640/p16.jpg",
+	};
+
+}
