@@ -7,7 +7,7 @@ import android.app.Application;
 import android.net.http.HttpResponseCache;
 import android.os.Build;
 
-import com.therealjoshua.core.logging.Log;
+import com.therealjoshua.essentials.logger.Log;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoaderLocator;
 import com.therealjoshua.essentials.bitmaploader.cache.BitmapLruCache;

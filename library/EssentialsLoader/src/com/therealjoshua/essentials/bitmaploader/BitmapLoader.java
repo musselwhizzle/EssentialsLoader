@@ -42,7 +42,7 @@ import android.support.v4.util.LruCache;
 import android.text.TextUtils;
 
 import com.therealjoshua.essentials.bitmaploader.cache.Cache;
-import com.therealjoshua.core.logging.Log;
+import com.therealjoshua.essentials.logger.Log;
 
 /*
  * FEATURES

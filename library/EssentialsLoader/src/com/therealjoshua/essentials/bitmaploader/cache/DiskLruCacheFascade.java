@@ -14,7 +14,7 @@ import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.os.Looper;
 
-import com.therealjoshua.core.logging.Log;
+import com.therealjoshua.essentials.logger.Log;
 import com.therealjoshua.essentials.bitmaploader.BitmapOptionsDecoder;
 import com.therealjoshua.essentials.bitmaploader.cache.DiskLruCache.Editor;
 import com.therealjoshua.essentials.bitmaploader.cache.DiskLruCache.Snapshot;
