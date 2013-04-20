@@ -70,7 +70,7 @@ public class MainActivity extends Activity {
 				case 1: startActivity(new Intent(MainActivity.this, Sample1Activity.class)); break;
 				case 2: startActivity(new Intent(MainActivity.this, Sample2Activity.class)); break;
 				case 3: startActivity(new Intent(MainActivity.this, Sample3Activity.class)); break;
-				case 4: startActivity(new Intent(MainActivity.this, Sample4Activity.class)); break;
+//				case 4: startActivity(new Intent(MainActivity.this, Sample4Activity.class)); break;
 				case 5: startActivity(new Intent(MainActivity.this, Sample5Activity.class)); break;
 			}
 		}
