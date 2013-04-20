@@ -11,7 +11,7 @@ import com.therealjoshua.essentials.logger.Log;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoaderLocator;
 import com.therealjoshua.essentials.bitmaploader.cache.BitmapLruCache;
-import com.therealjoshua.essentials.bitmaploader.cache.DiskLruCacheFascade;
+import com.therealjoshua.essentials.bitmaploader.cache.DiskLruCacheFacade;
 
 public class App extends Application {
 	
@@ -42,7 +42,7 @@ public class App extends Application {
 		BitmapLruCache memCache = new BitmapLruCache(1/4f);
 		
 		// create the disk cache
-		DiskLruCacheFascade diskCache = new DiskLruCacheFascade(
+		DiskLruCacheFacade diskCache = new DiskLruCacheFacade(
 				this.getCacheDir(), 
 				memCache.getLruCache().maxSize());
 		

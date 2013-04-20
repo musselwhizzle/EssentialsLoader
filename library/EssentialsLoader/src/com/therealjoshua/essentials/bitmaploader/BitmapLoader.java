@@ -219,11 +219,12 @@ public class BitmapLoader {
 			canAccessNetworkState = true;
 		}
 		
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			executor = PortedAsyncTask.THREAD_POOL_EXECUTOR;
-		} else {
-			executor = PortedAsyncTask.DUAL_THREAD_EXECUTOR;
-		}
+		executor = PortedAsyncTask.DUAL_THREAD_EXECUTOR;
+//		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+//			executor = PortedAsyncTask.THREAD_POOL_EXECUTOR;
+//		} else {
+//			executor = PortedAsyncTask.DUAL_THREAD_EXECUTOR;
+//		}
 	}
 	
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
