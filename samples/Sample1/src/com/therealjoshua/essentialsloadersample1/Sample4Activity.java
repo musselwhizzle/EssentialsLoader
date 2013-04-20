@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
@@ -16,7 +17,7 @@ import com.therealjoshua.essentials.bitmaploader.binders.FadeImageViewBinder;
 import com.therealjoshua.essentials.bitmaploader.binders.ImageViewBinder;
 
 /*
- * Standard listview using the loader
+ * Standard gridview using the loader. BROKEN. FIX!
  */
 public class Sample4Activity extends Activity {
 	
@@ -27,11 +28,12 @@ public class Sample4Activity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		gridView = new GridView(this);
-		gridView.setNumColumns(3);
-		gridView.setColumnWidth(size);
-		size = getResources().getDisplayMetrics().widthPixels/3;
+		gridView.setNumColumns(2);
+//		gridView.setColumnWidth(size);
+		size = getResources().getDisplayMetrics().widthPixels/2;
 		gridView.setAdapter(new MyAdapter(this));
-		setContentView(gridView);
+		LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+		setContentView(gridView, params);
 	}
 	
 	private class MyAdapter extends BaseAdapter {
@@ -73,11 +75,13 @@ public class Sample4Activity extends Activity {
 				imageView = new ImageView(context);
 				AbsListView.LayoutParams p = new AbsListView.LayoutParams(size, size);
 				imageView.setLayoutParams(p);
+				imageView.setImageResource(R.drawable.gray_k02);
 			}
 			String url = getItem(position);
 			BitmapFactory.Options opts = new BitmapFactory.Options();
 			opts.inSampleSize = inSampleSize;
 			binder.load(imageView, url, opts);
+//			Log.d("Sample 4", "position: " + position + ", convertView == null: " + (convertView==null));
 			return imageView;
 		}
 	}

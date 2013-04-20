@@ -51,7 +51,7 @@ public class Sample5Activity extends Activity {
 				BitmapLoader loader = new BitmapLoader(Sample5Activity.this, null, null);
 				FadeImageViewBinder binder = new FadeImageViewBinder(loader);
 				String fUri = "file://" + uri; // give the path a protocol
-				binder.setLoadingDrawableResId(R.drawable.ic_launcher);
+				binder.setLoadingDrawableResId(R.drawable.gray_k02);
 				binder.setFaultDrawableResId(R.drawable.error_k02);
 				binder.load(imageView, fUri);
 			}
@@ -66,8 +66,8 @@ public class Sample5Activity extends Activity {
 		new AsyncTask<Void, Void, Void>() {
 			@Override
 			protected Void doInBackground(Void... params) {
-				Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.gray_k02, null);
-				File file = new File(getCacheDir().getAbsolutePath() + "/gray");
+				Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.sd_img, null);
+				File file = new File(getCacheDir().getAbsolutePath() + "/sd_img");
 				uri = file.getAbsolutePath();
 				try {
 					FileOutputStream stream = new FileOutputStream(file);
