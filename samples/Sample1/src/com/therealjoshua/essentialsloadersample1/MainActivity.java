@@ -34,13 +34,13 @@ public class MainActivity extends Activity {
 			public void onClick(View v) {
 				BitmapLoaderLocator.getBitmapLoader().clearCache();
 				// really shouldn't do this on the UI thread...but hey it's an example
-//				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-//					HttpResponseCache httpCache = HttpResponseCache.getInstalled();
-//					if (httpCache != null) {
-//						File dir = new File(getCacheDir(), "HttpCache");
-//						deleteFile(dir);
-//					}
-//				}
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+					HttpResponseCache httpCache = HttpResponseCache.getInstalled();
+					if (httpCache != null) {
+						File dir = new File(getCacheDir(), "HttpCache");
+						deleteFile(dir);
+					}
+				}
 			}
 		});
 		ll.addView(btn);

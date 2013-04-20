@@ -6,25 +6,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Bitmap.CompressFormat;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader;
-import com.therealjoshua.essentials.bitmaploader.BitmapLoaderLocator;
 import com.therealjoshua.essentials.bitmaploader.binders.FadeImageViewBinder;
-import com.therealjoshua.essentials.bitmaploader.binders.ImageViewBinder;
 
 /*
  * loading an image from the sdcard

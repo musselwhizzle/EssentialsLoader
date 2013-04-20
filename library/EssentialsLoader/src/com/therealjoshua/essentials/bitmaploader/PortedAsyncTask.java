@@ -217,6 +217,9 @@ public abstract class PortedAsyncTask<Params, Progress, Result> {
      */
     public static final Executor DUAL_THREAD_EXECUTOR =
             Executors.newFixedThreadPool(2, sThreadFactory);
+    
+    public static final Executor PENTA_THREAD_EXECUTOR =
+    		Executors.newFixedThreadPool(5, sThreadFactory);
 
     private static final int MESSAGE_POST_RESULT = 0x1;
     private static final int MESSAGE_POST_PROGRESS = 0x2;

@@ -35,16 +35,6 @@ public class Sample4Activity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        /*
-         * NOTE NOTE NOTE
-         * There's a really weird issue on Android 2.3.3 (and maybe lower ones?) 
-         * that makes the GridView horribly
-         * inefficient firing of tons and tons of GC_EXTERNAL_ALLOC. This has nothing to 
-         * do with the loading system, as if you remove the laoder
-         * and just use blank ImageView this issue still occurs. 
-         * If you have a fix for this, please let me know.
-         */
-        
         mImageThumbSize = getResources().getDimensionPixelSize(R.dimen.image_thumbnail_size);
         mImageThumbSpacing = getResources().getDimensionPixelSize(R.dimen.image_thumbnail_spacing);
 
@@ -109,7 +99,6 @@ public class Sample4Activity extends Activity {
             
             binder = new FadeImageViewBinder(BitmapLoaderLocator.getBitmapLoader());
             binder.setLoadingDrawableResId(R.drawable.empty_photo);
-            
         }
 
         @Override

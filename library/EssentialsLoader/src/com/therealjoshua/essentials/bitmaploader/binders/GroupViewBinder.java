@@ -30,6 +30,7 @@ public class GroupViewBinder<T extends View> {
 	private WeakHashMap<T, Drawable> faultDrawables;
 	private int loadingDrawableResId = 0;
 	private int faultDrawableResId = 0;
+	private Bitmap loadingBitmap;
 	
 	/*
 	 * The reason for the drawable factories is views shouldn't be sharing references 
