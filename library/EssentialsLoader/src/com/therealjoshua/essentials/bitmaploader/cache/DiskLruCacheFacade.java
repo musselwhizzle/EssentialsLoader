@@ -19,9 +19,9 @@ import com.therealjoshua.essentials.bitmaploader.BitmapOptionsDecoder;
 import com.therealjoshua.essentials.bitmaploader.cache.DiskLruCache.Editor;
 import com.therealjoshua.essentials.bitmaploader.cache.DiskLruCache.Snapshot;
 
-public class DiskLruCacheFascade implements Cache<String, Bitmap>, BitmapOptionsDecoder {
+public class DiskLruCacheFacade implements Cache<String, Bitmap>, BitmapOptionsDecoder {
 	
-	private static final String TAG = DiskLruCacheFascade.class.getSimpleName();
+	private static final String TAG = DiskLruCacheFacade.class.getSimpleName();
 	private DiskLruCache cache;
 	private File directory;
 	private int appVersion;
@@ -36,7 +36,7 @@ public class DiskLruCacheFascade implements Cache<String, Bitmap>, BitmapOptions
 	private BitmapFactory.Options options;
 	private Rect outPadding;
 	
-	public DiskLruCacheFascade(File directory, long maxSize) {
+	public DiskLruCacheFacade(File directory, long maxSize) {
 		this.directory = directory;
 		this.appVersion = 0;
 		this.valueCount = 1;
