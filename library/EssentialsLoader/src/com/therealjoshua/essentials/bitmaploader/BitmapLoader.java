@@ -22,11 +22,9 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
 
 import android.accounts.NetworkErrorException;
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Service;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -219,7 +217,6 @@ public class BitmapLoader {
 			canAccessNetworkState = true;
 		}
 		
-//		executor = PortedAsyncTask.DUAL_THREAD_EXECUTOR;
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 			executor = PortedAsyncTask.PENTA_THREAD_EXECUTOR;
 		} else {
@@ -227,9 +224,8 @@ public class BitmapLoader {
 		}
 	}
 	
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	public void setExecutorService(ExecutorService executorService) {
-		this.executor = executorService;
+	public void setExecuteOnExecutor(Executor executor) {
+		this.executor = executor;
 	}
 	
 	public ErrorLogFactory getErrorLogFactory() {

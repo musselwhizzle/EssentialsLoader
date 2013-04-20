@@ -13,6 +13,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 
 import com.therealjoshua.essentials.bitmaploader.BitmapLoaderLocator;
+import com.therealjoshua.essentials.bitmaploader.PortedAsyncTask;
 import com.therealjoshua.essentials.bitmaploader.binders.FadeImageViewBinder;
 import com.therealjoshua.essentials.bitmaploader.binders.ImageViewBinder;
 import com.therealjoshua.essentials.logger.Log;

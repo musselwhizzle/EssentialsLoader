@@ -28,6 +28,7 @@ public class Sample1Activity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		listView = new ListView(this);
+		listView.setDrawSelectorOnTop(true);
 		listView.setAdapter(adapter = new MyAdapter(this));
 		
 		// this is rather unnecessary, but if you want to listen
