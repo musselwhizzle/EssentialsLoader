@@ -14,9 +14,9 @@ One more issue EssentialsLoader addresses is often loading systems do not expose
 ## Getting Started
 
  * Grab from Jar files from the sample or from the root git directory and put essentials-loader.jar into your libs folder
- * You'll probably want to do the initialization in your Application class
- * Optionally (not part of EssentialsLoader but Android sdk) set a cache using HttpResponseCache.install
- * Create a BitmapLruCache memory cache, DiskLruCacheFacade disk cache, and create a BitmapLoader instance
+ * You'll probably want to do the initialization in your `Application` class
+ * Optionally (not part of EssentialsLoader but Android sdk) set a cache using `HttpResponseCache.install`
+ * Create a `BitmapLruCache` memory cache, `DiskLruCacheFacade` disk cache, and create a `BitmapLoader` instance
  * You'll probably want to store a global reference to these using BitmapLoaderLocator
- * In your Activity/Fragment/Adapter if you're loading an Bitmap into an ImageView, create a FadeImageViewBinder and call load method passing in your url.
+ * In your Activity/Fragment/Adapter if you're loading an Bitmap into an `ImageView`, create a `FadeImageViewBinder` and call load method passing in your url.
  * that's it!
