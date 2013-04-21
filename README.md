@@ -1,24 +1,22 @@
 EssentialsLoader
 ================
 
-An image loading and caching system for Android.
+An image loading and caching system for Android. You can use this system to effeciently lazy load images in a ListView, a ViewPager, or any type of component you'd like.  
 
-What sets this loader apart from the rest?
-================
+## Why use EssentialsLoader?
 
-In terms of flexibility, this system has a couple of nice features:
-1) It decouples the loading process from the displaying process. While systems like google's "Loading Large Bitmaps Efficiently" and others a are nice, you are forced to reference an ImageView just to load an image. This system removes that coupling so that you can load a bitmap without needing a view. 
+While systems like Google's sample from [Loading Large Bitmaps Efficiently](http://developer.android.com/training/displaying-bitmaps/load-bitmap.html) and others are nice, they often create a tight coupling between the loading system and the view. You are forced to reference an ImageView just to load an image. These systems make it very difficult to load an image as a background of a view or to do custom behaviors to the component when the image loads. EssentialsLoader removes that coupling so that you can load a bitmap without needing an ImageView or any view, and you are free to use the loaded image in any fashion you see fit whether it's an ImageView or an ImageView background or a custom drawable, or no View at all and just pure Bitmap data.  
 
 
-2) It also decouples the caches. With the caches being aggregated into the loader system and using an interface
-you are free to swap int and out and use any caching system you like. For instance, perhaps in a nested Activity you wanted to have a dedicated DiskCache just for that so that you may clear out the contents once that page is done but still use the same MemoryCache. This loader gives you that flexibility
+One more issue EssentialsLoader addresses is often loading systems do not expose the caches, but internally compose them. EssentailsLoader aggregates the caches into the loader system allow you to freely to swap in and out and use any caching system you like. You may want to share the memory cache across the entire application but not the disk cache or vise versa. With EssentailsLoader you have the option to choose.
 
 
-How to use it?
-================
+## Getting Started
 
-1) First check out the samples.
-2) Grab the jar files and put them in your libs folder
-3) In your Application subclass, you'll probably want to initialize the loader along with your caches
-4) If you want to load an Bitmap into an ImageView, you'll probably want to use a FadeImageViewBinder and now just call the load method
-5) profit!
+ * Grab from Jar files from the sample or from the root git directory and put essentials-loader.jar into your libs folder
+ * You'll probably want to do the initialization in your Application class
+ * Optionally (not part of EssentialsLoader but Android sdk) set a cache using HttpResponseCache.install
+ * Create a BitmapLruCache memory cache, DiskLruCacheFacade disk cache, and create a BitmapLoader instance
+ * You'll probably want to store a global reference to these using BitmapLoaderLocator
+ * In your Activity/Fragment/Adapter if you're loading an Bitmap into an ImageView, create a FadeImageViewBinder and call load method passing in your url.
+ * that's it!
