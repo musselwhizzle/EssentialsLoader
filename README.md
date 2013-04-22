@@ -22,8 +22,7 @@ One more issue EssentialsLoader addresses is often loading systems do not expose
  * In your Activity/Fragment/Adapter if you're loading an Bitmap into an `ImageView`, create a `FadeImageViewBinder` and call load method passing in your url.
  * that's it!
 
-License
-=======
+## License
 
     Copyright 2012 Joshua Musselwhite
 
