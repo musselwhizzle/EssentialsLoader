@@ -14,6 +14,7 @@ One more issue EssentialsLoader addresses is often loading systems do not expose
 ## Getting Started
 
  * Grab from Jar files from the sample or from the root git directory and put essentials-loader.jar into your libs folder
+ * In your manifest file add the permissions, INTERNET, WRITE_EXTERNAL_STORAGE, and ACCESS_NETWORK_STATE
  * You'll probably want to do the initialization in your `Application` class
  * Optionally (not part of EssentialsLoader but Android sdk) set a cache using `HttpResponseCache.install`
  * Create a `BitmapLruCache` memory cache, `DiskLruCacheFacade` disk cache, and create a `BitmapLoader` instance
