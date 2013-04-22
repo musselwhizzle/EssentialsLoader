@@ -8,7 +8,7 @@ An image loading and caching system for Android. You can use this system to effe
 While systems like Google's sample from [Loading Large Bitmaps Efficiently](http://developer.android.com/training/displaying-bitmaps/load-bitmap.html) and others are nice, they often create a tight coupling between the loading system and the view. You are forced to reference an ImageView just to load an image. These systems make it very difficult to load an image as a background of a view or to do custom behaviors to the component when the image loads. EssentialsLoader removes that coupling so that you can load a bitmap without needing an ImageView or any view, and you are free to use the loaded image in any fashion you see fit whether it's an ImageView or an ImageView background or a custom drawable, or no View at all and just pure Bitmap data.  
 
 
-One more issue EssentialsLoader addresses is often loading systems do not expose the caches, but internally compose them. EssentailsLoader aggregates the caches into the loader system allow you to freely to swap in and out and use any caching system you like. You may want to share the memory cache across the entire application but not the disk cache or vise versa. With EssentailsLoader you have the option to choose.
+One more issue EssentialsLoader addresses is often loading systems do not expose the caches, but internally compose them. EssentailsLoader aggregates the caches into the loader system allowing you to freely to swap them in and out and use any caching system you like. You may want to share the memory cache across the entire application but not the disk cache or vise versa. With EssentailsLoader you have the option to choose.
 
 
 ## Getting Started
