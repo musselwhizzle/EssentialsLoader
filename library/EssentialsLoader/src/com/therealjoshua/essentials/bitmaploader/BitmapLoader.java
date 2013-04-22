@@ -52,12 +52,20 @@ import com.therealjoshua.essentials.logger.Log;
  * this library could be expanded to do local image fetching like file:// in which case
  * this is not needed. How should I handle this? A simple boolean? Or should the 
  * content providers check for the internet if needed?
+ * 
+ * 3) add another load method where the width/height and not bitmapfactory.options
+ * is the param. I can then set a max width/height and compress the image dynamically.
+ * To do this, I'll probably need my own httpcache with the original image in it 
+ * like Google's lib
+ * 
+ * 4) I can share the same bitmap, just not the same BitmapDrawable. Refactor the load to use the same 
+ * Bitmap across drawable to save memory
  */
 
 /**
  * This class is responsible for the actual loading process. Generally, you will not 
  * interact with it directly but instead use a ViewBinder which aggregates an instance
- * of the BitmapLoader class. Of APIs of this of BitmapLoader are simple and should be 
+ * of the BitmapLoader class. The APIs of this of BitmapLoader are simple and should be 
  * familiar. You can create an instance (which you may want to access globally) but passing
  * in your 2 caches: A memory cache and a disk cache. The caches are aggregated to the
  * BitmapLoader to allow for multiple instances which can use the same cache. It's possible, 
