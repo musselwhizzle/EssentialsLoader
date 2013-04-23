@@ -115,8 +115,6 @@ public class Sample2Activity extends Activity {
 		}
 	}
 	
-	// SingleViewBinder is easier to work with than GroupViewBinder
-	// so just extend that. 
 	private class MySpinnerBinder extends SingleViewBinder {
 		
 		private View loadingView;

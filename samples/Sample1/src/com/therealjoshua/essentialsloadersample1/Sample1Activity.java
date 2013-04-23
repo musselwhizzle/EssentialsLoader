@@ -66,9 +66,9 @@ public class Sample1Activity extends Activity {
 			
 			// create a fade binder which is cross fade in the loaded image with 
 			// what's currently in the image view
-			binder = new FadeImageViewBinder(BitmapLoaderLocator.getBitmapLoader());
-			binder.setLoadingDrawableResId(R.drawable.gray_k02);
-			binder.setFaultDrawableResId(R.drawable.error_k02);
+			binder = new FadeImageViewBinder(context, BitmapLoaderLocator.getBitmapLoader());
+			binder.setLoadingResource(R.drawable.gray_k02);
+			binder.setFaultResource(R.drawable.error_k02);
 		}
 		
 		@Override

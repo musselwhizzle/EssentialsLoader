@@ -3,6 +3,8 @@ package com.therealjoshua.essentialsloadersample1;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,19 +14,16 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 
+import com.therealjoshua.essentials.bitmaploader.BitmapLoader;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoaderLocator;
-import com.therealjoshua.essentials.bitmaploader.binders.FadeImageViewBinder;
 import com.therealjoshua.essentials.bitmaploader.binders.ImageViewBinder;
 import com.therealjoshua.essentials.logger.Log;
 
 /*
- * This is pretty much the code from the ImageGridFragment from here: 
- * http://developer.android.com/training/displaying-bitmaps/load-bitmap.html
- * All I did was modify it some to make it fix the EssentialsLoader and 
- * use an Activity instead of a Fragment.
+ * Same as sample4 but with custom drawables
  */
-public class Sample4Activity extends Activity {
-	private static final String TAG = "Sample4Activity";
+public class Sample6Activity extends Activity {
+	private static final String TAG = "Sample6Activity";
 
     private int mImageThumbSize;
     private int mImageThumbSpacing;
@@ -97,7 +96,7 @@ public class Sample4Activity extends Activity {
             mImageViewLayoutParams = new GridView.LayoutParams(
                     LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
             
-            binder = new FadeImageViewBinder(context, BitmapLoaderLocator.getBitmapLoader());
+            binder = new StarBinder(context, BitmapLoaderLocator.getBitmapLoader());
             binder.setLoadingResource(R.drawable.empty_photo);
         }
 
@@ -166,5 +165,28 @@ public class Sample4Activity extends Activity {
         public int getNumColumns() {
             return mNumColumns;
         }
+    }
+    
+    private class StarBinder extends ImageViewBinder {
+
+		public StarBinder(Context context, BitmapLoader loader) {
+			super(context, loader);
+		}
+		
+		@Override
+		public Drawable getLoadingDrawable() {
+			return new StarBitmapDrawable(getLoadingBitmap());
+		}
+		
+		@Override
+		public Drawable getFaultDrawable() {
+			return new StarBitmapDrawable(getFaultBitmap());
+		}
+		
+		@Override
+		protected Drawable getSuccessDrawable(Bitmap bitmap) {
+			return new StarBitmapDrawable(bitmap);
+		}
+    	
     }
 }

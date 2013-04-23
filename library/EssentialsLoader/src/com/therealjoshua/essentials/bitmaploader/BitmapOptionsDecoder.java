@@ -19,8 +19,24 @@ package com.therealjoshua.essentials.bitmaploader;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 
+/**
+ * Interface that caches and ContentHandler can implement if they support 
+ * using BitmapFactory.Options when fetching the Bitmap
+ * 
+ * @author Joshua
+ *
+ */
 public interface BitmapOptionsDecoder {
 	
+	/**
+	 * Sets the BitmapFactory.Options and the Rect (from BitmapFactory)
+	 * on the object. Once the object consumes the request, it should
+	 * clean up the request. (TODO? Should I just set the options to null
+	 * myself?) 
+	 * 
+	 * @param options
+	 * @param outPadding
+	 */
 	public void setOptions(BitmapFactory.Options options, Rect outPadding);
 	
 }

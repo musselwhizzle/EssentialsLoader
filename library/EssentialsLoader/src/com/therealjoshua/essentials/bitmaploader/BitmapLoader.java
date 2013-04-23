@@ -57,6 +57,7 @@ import com.therealjoshua.essentials.logger.Log;
  * is the param. I can then set a max width/height and compress the image dynamically.
  * To do this, I'll probably need my own httpcache with the original image in it 
  * like Google's lib
+ * load(String uri, Callback, int targetWidth, int targetHeight)
  * 
  * 4) I can share the same bitmap, just not the same BitmapDrawable. Refactor the load to use the same 
  * Bitmap across drawable to save memory
@@ -232,14 +233,32 @@ public class BitmapLoader {
 		}
 	}
 	
+	/**
+	 * Sets the executor where the asyn task will execute on. 
+	 * 
+	 * @param executor
+	 */
 	public void setExecuteOnExecutor(Executor executor) {
 		this.executor = executor;
 	}
 	
+	
+	/**
+	 * Gets the ErrorLogFactory that was set
+	 * 
+	 * @return
+	 */
 	public ErrorLogFactory getErrorLogFactory() {
 		return errorLogFactory;
 	}
 	
+	/**
+	 * Sets the factory which is responsible for creating the ErrorLog event when an error happens.
+	 * By allowing a factory, the client can use the implementation of the ErrorLog and have
+	 * it validate itself how it sees fit. The default factory validates upon time passed
+	 * 
+	 * @param errorLogFactory
+	 */
 	public void setErrorLogFactory(ErrorLogFactory errorLogFactory) {
 		this.errorLogFactory = errorLogFactory;
 	}
@@ -340,7 +359,8 @@ public class BitmapLoader {
 	}
 	
 	/**
-	 * Convenience method to clear all the caches.
+	 * Convenience method to clear all the caches. The clearing of the disk cache
+	 * will run in a seperate thread.
 	 */
 	public void clearCache() {
 		clearMemCache();
@@ -701,8 +721,8 @@ public class BitmapLoader {
 	
 	
 	/**
-	 * Implementation of the ErrorLogFactory to create an ErrorLogImpl. This Implementation
-	 * passing the validationTime or time for the error to still be valid. The default is 60 seconds. 
+	 * Implementation of the ErrorLogFactory to create ErrorLog objects which validate based
+	 * upon time passed. The default is 60 seconds. 
 	 * 
 	 * @author Joshua
 	 */

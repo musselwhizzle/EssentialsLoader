@@ -16,10 +16,10 @@
 
 package com.therealjoshua.essentials.bitmaploader.binders;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory.Options;
 import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
@@ -31,15 +31,30 @@ import com.therealjoshua.essentials.bitmaploader.BitmapLoader.Cancelable;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.ErrorSource;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.LoadRequest;
 
+/**
+ * A binder used to associate apply a fade transition to the loaded image
+ * in an ImageView
+ */
 public class FadeImageViewBinder extends ImageViewBinder {
 	private int transitionDuration = 250;
 	
-	public FadeImageViewBinder(BitmapLoader loader) {
-		super(loader);
+	public FadeImageViewBinder(Context context, BitmapLoader loader) {
+		super(context, loader);
 	}
 	
-	public int getTransitionDuration() { return transitionDuration; }
+	/**
+	 * The length of the set transition
+	 * @return
+	 */
+	public int getTransitionDuration() { 
+		return transitionDuration; 
+	}
 	
+	/**
+	 * Sets the length of the transition on the fade
+	 * 
+	 * @param transitionDuration
+	 */
 	public void setTransitionDuration(int transitionDuration) {
 		this.transitionDuration = transitionDuration;
 	}
@@ -61,7 +76,7 @@ public class FadeImageViewBinder extends ImageViewBinder {
 			}
 			Drawable[] fades = new Drawable[2];
 			fades[0] = currentDrawable;
-			fades[1] = new BitmapDrawable(imageView.getContext().getResources(), bitmap);
+			fades[1] = getSuccessDrawable(bitmap);
 			crossFade(fades, imageView);
 		}
 	}
@@ -73,7 +88,7 @@ public class FadeImageViewBinder extends ImageViewBinder {
 		}
 		else {
 			Drawable currentDrawable = imageView.getDrawable();
-			Drawable faultDrawable = getFaultDrawable(imageView);
+			Drawable faultDrawable = getFaultDrawable();
 			if (currentDrawable == null) {
 				currentDrawable = new ColorDrawable(android.R.color.transparent);
 			}

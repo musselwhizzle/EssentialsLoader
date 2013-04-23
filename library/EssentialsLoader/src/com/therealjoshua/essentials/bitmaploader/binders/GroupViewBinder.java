@@ -22,99 +22,167 @@ import java.util.Map.Entry;
 import java.util.WeakHashMap;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.BitmapSource;
+import com.therealjoshua.essentials.bitmaploader.BitmapLoader.Cancelable;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.ErrorSource;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.LoadRequest;
-import com.therealjoshua.essentials.bitmaploader.BitmapLoader.Cancelable;
 
+/**
+ * The GroupViewBinder is an abstract class used to bind the loading to a view.
+ * Subclasses of GroupViewBinder can implement how the loaded bitmap is used in the view.
+ * For instance, the ImageViewBinder set's the loaded Bitmap to an ImageView while the 
+ * BackgroundBinder sets the loaded Bitmap to be a background of any View. Custom Binders
+ * can extend this class to provide their own behavior on load such as custom drawables
+ * or any number of modifications. The GroupViewBinder and subclasses are meant to be used
+ * as 1 binder instance per group of views. For instance, in a ListAdapter you will only
+ * need 1 binder and just call the load method for each item renderer in the list
+ * 
+ * @param <T> Any type of view which the loaded image will be bound to
+ */
 public class GroupViewBinder<T extends View> {
-	
-	public static interface DrawableFactory {
-		public Drawable createDrawable(Context context);
-	}
 	
 	private BitmapLoader loader;
 	private WeakHashMap<T, Cancelable> cancelables;
-	private WeakHashMap<T, Drawable> loadingDrawables;
-	private WeakHashMap<T, Drawable> faultDrawables;
-	private int loadingDrawableResId = 0;
-	private int faultDrawableResId = 0;
 	private Bitmap loadingBitmap;
+	private Bitmap faultBitmap;
+	private Context context;
+	private Resources res;
 	
-	/*
-	 * The reason for the drawable factories is views shouldn't be sharing references 
-	 * to the drawable. If one changes the the appears all other views referencing that
-	 * will also change their appearance when they invalidate. E.g. in the FadeImageViewBinder
-	 * when 1 changes the drawable to fade it, the others update as well. 
-	 */
-	private DrawableFactory loadingDrawableFactory;
-	private DrawableFactory faultDrawableFactory;
-	
-	
-	public GroupViewBinder(BitmapLoader loader) {
+	public GroupViewBinder(Context context, BitmapLoader loader) {
+		this.context = context;
+		this.res = context.getResources();
 		this.loader = loader;
 		cancelables = new WeakHashMap<T, BitmapLoader.Cancelable>();
-		loadingDrawables = new WeakHashMap<T, Drawable>();
-		faultDrawables = new WeakHashMap<T, Drawable>();
 	}
 	
-	public Drawable getLoadingDrawable(T view) {
-		Drawable d = loadingDrawables.get(view);
-		if (d != null) return d;
-		if (loadingDrawableFactory != null) {
-			d = loadingDrawableFactory.createDrawable(view.getContext());
-		}
-		else if (loadingDrawableResId > 0) {
-			d = view.getContext().getResources().getDrawable(loadingDrawableResId);
-		}
-		if (d != null) loadingDrawables.put(view, d);
-		return d;
+	/**
+	 * Gets the context passed to the constructor
+	 * @return
+	 */
+	public Context getContext() {
+		return context;
 	}
 	
-	public Drawable getFaultDrawable(T view) {
-		Drawable d = faultDrawables.get(view);
-		if (d != null) return d;
-		if (faultDrawableFactory != null) {
-			d = faultDrawableFactory.createDrawable(view.getContext());
-		}
-		else if (faultDrawableResId > 0) {
-			d = view.getContext().getResources().getDrawable(faultDrawableResId);
-		}
-		if (d != null) faultDrawables.put(view, d);
-		return d;
+	/**
+	 * Creates a new drawable that represents what to show during the loading state. 
+	 * 
+	 * @return Drawable to show
+	 */
+	public Drawable getLoadingDrawable() {
+		if (loadingBitmap == null) return null;
+		return new BitmapDrawable(res, loadingBitmap);
 	}
 	
-	public void setLoadingDrawableResId(int resId) {
-		this.loadingDrawableResId = resId;
+	/**
+	 * Creates a new drawable that represents what to show during the an error state. 
+	 * 
+	 * @return Drawable to show
+	 */
+	public Drawable getFaultDrawable() {
+		if (faultBitmap == null) return null;
+		return new BitmapDrawable(res, faultBitmap);
 	}
 	
-	public void setLoadingDrawableFactory(DrawableFactory factory) {
-		this.loadingDrawableFactory = factory;
+	/**
+	 * Convenience method to create a Bitmap which will be used during the loading state.
+	 * 
+	 * @param resId
+	 */
+	public void setLoadingResource(int resId) {
+		setLoadingBitmap( BitmapFactory.decodeResource(res, resId) );
 	}
 	
-	public void setFaultDrawableResId(int resId) {
-		this.faultDrawableResId = resId;
+	/**
+	 * Sets the Bitmap which will be used during the loading state.
+	 * 
+	 * @param Bitmap item to show while in the loading state
+	 */
+	public void setLoadingBitmap(Bitmap loadingBitmap) {
+		this.loadingBitmap = loadingBitmap;
 	}
 	
-	public void setFaultDrawableFactory(DrawableFactory factory) {
-		this.faultDrawableFactory = factory;
+	/**
+	 * Retrieves the Bitmap to show during the loading state
+	 * 
+	 * @return Bitmap
+	 */
+	public Bitmap getLoadingBitmap() {
+		return loadingBitmap;
 	}
 	
+	/**
+	 * Convenience method to create a Bitmap which will be used during the error state.
+	 * 
+	 * @param resId
+	 */
+	public void setFaultResource(int resId) {
+		setFaultBitmap( BitmapFactory.decodeResource(res, resId) );
+	}
+	
+	/**
+	 * Sets the Bitmap which will be used during the error state.
+	 * 
+	 * @param Bitmap item to show while in the error state
+	 */
+	public void setFaultBitmap(Bitmap faultBitmap) {
+		this.faultBitmap = faultBitmap;
+	}
+	
+	/**
+	 * Retrieves the Bitmap to show during the error state
+	 * 
+	 * @return Bitmap
+	 */
+	public Bitmap getFaultBitmap() {
+		return faultBitmap;
+	}
+	
+	/**
+	 * Starts the loading sequence. Should a load call already be in place for the view passed 
+	 * in, the old call will be canceled and the new load call will proceed. 
+	 * 
+	 * @param view A view where the result of the load will be displayed
+	 * @param uri A location to the bitmap. Can be http:// or file:///
+	 * @return A object used to cancel the load
+	 */
 	public Cancelable load(T view, String uri) {
 		return load(view, uri, null, null);
 	}
 	
+	/**
+	 * Starts the loading sequence. Should a load call already be in place for the view passed 
+	 * in, the old call will be canceled and the new load call will proceed. 
+	 * 
+	 * @param view A view where the result of the load will be displayed
+	 * @param uri A location to the bitmap. Can be http:// or file:///
+	 * @param options The BitmapFactory.Options options used to do manipulations to the image
+	 * while it's inflating
+	 * @return A object used to cancel the load
+	 */
 	public Cancelable load(T view, String uri, BitmapFactory.Options options) {
 		return load(view, uri, options, null);
 	}
 	
+	/**
+	 * Starts the loading sequence. Should a load call already be in place for the view passed 
+	 * in, the old call will be canceled and the new load call will proceed. 
+	 * 
+	 * @param view A view where the result of the load will be displayed
+	 * @param uri A location to the bitmap. Can be http:// or file:///
+	 * @param options The BitmapFactory.Options options used to do manipulations to the image
+	 * while it's inflating
+	 * @param outPadding A Rect from the BitmapFactory.decode method where the padding will be placed
+	 * @return A object used to cancel the load
+	 */
 	public Cancelable load(T view, String uri, BitmapFactory.Options options, Rect outPadding) {
 		cancel(view);
 		Cancelable q = loader.load(uri, new Callback(view), options, outPadding);
@@ -122,11 +190,19 @@ public class GroupViewBinder<T extends View> {
 		return q;
 	}
 	
+	/**
+	 * Cancels a load that is associated with the view
+	 * 
+	 * @param view The view that is associated with the load call from the load method
+	 */
 	public void cancel(T view) {
 		Cancelable q = cancelables.get(view);
 		if (q != null) q.cancel();
 	}
 	
+	/**
+	 * Cancels all the load calls in this grouping
+	 */
 	public void cancelAll() {
 		Iterator<Entry<T, Cancelable>> it = cancelables.entrySet().iterator();
 		while (it.hasNext()) {
@@ -136,10 +212,26 @@ public class GroupViewBinder<T extends View> {
 		}
 	}
 	
+	/**
+	 * A hook point for subclasses to handle successful load calls
+	 * 
+	 * @param view The view passed in during the load method
+	 * @param bitmap The result of the loading
+	 * @param source The location of where the Bitmap came from such as memory or disk cache
+	 * @param request The params used to make the load request
+	 */
 	protected void onSuccess(T view, Bitmap bitmap, BitmapSource source, LoadRequest request) {
 		
 	}
 	
+	/**
+	 * A hook point for subclasses to handle unsuccessful load calls
+	 * 
+	 * @param view The view passed in during the load method
+	 * @param error The error that was thrown/given during the load call
+	 * @param source The location of where the error came from such as memory, network IO, etc
+	 * @param request The params used to make the load request
+	 */
 	protected void onError(T view, Throwable error, ErrorSource source, LoadRequest request) {
 		
 	}

@@ -42,10 +42,10 @@ public class Sample5Activity extends Activity {
 			@Override
 			public void onClick(View v) {
 				BitmapLoader loader = new BitmapLoader(Sample5Activity.this, null, null);
-				FadeImageViewBinder binder = new FadeImageViewBinder(loader);
+				FadeImageViewBinder binder = new FadeImageViewBinder(Sample5Activity.this, loader);
 				String fUri = "file://" + uri; // give the path a protocol
-				binder.setLoadingDrawableResId(R.drawable.gray_k02);
-				binder.setFaultDrawableResId(R.drawable.error_k02);
+				binder.setLoadingResource(R.drawable.gray_k02);
+				binder.setFaultResource(R.drawable.error_k02);
 				binder.load(imageView, fUri);
 			}
 		});

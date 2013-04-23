@@ -16,9 +16,12 @@
 
 package com.therealjoshua.essentials.bitmaploader.binders;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.widget.ImageView;
 
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader;
@@ -27,31 +30,43 @@ import com.therealjoshua.essentials.bitmaploader.BitmapLoader.Cancelable;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.ErrorSource;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.LoadRequest;
 
+/**
+ * A binder used to associate the loaded image with an ImageView
+ */
 public class ImageViewBinder extends GroupViewBinder<ImageView> {
 	
-	public ImageViewBinder(BitmapLoader loader) {
-		super(loader);
+	public ImageViewBinder(Context context, BitmapLoader loader) {
+		super(context, loader);
 	}
 	
 	@Override
 	public Cancelable load(ImageView imageView, String uri, BitmapFactory.Options options, Rect outPadding) {
 		cancel(imageView);
 		if (imageView == null) return null;
-		imageView.setImageDrawable(getLoadingDrawable(imageView));
+		imageView.setImageDrawable(getLoadingDrawable());
 		return super.load(imageView, uri, options, outPadding);
 	}
 
 	@Override
 	public void onSuccess(ImageView imageView, Bitmap bitmap, 
 			BitmapSource source, LoadRequest request) {
-		imageView.setImageBitmap(bitmap);
+		imageView.setImageDrawable(getSuccessDrawable(bitmap));
 	}
 
 	@Override
 	public void onError(ImageView imageView, Throwable error, 
 			ErrorSource source, LoadRequest request) {
-		imageView.setImageDrawable(getFaultDrawable(imageView));
+		imageView.setImageDrawable(getFaultDrawable());
 	}
 	
+	/**
+	 * Gets the drawable used when a successful bitmap has been loaded
+	 * 
+	 * @param bitmap The loaded Bitmap
+	 * @return The Drawable to use in the ImageView
+	 */
+	protected Drawable getSuccessDrawable(Bitmap bitmap) {
+		return new BitmapDrawable(getContext().getResources(), bitmap);
+	}
 	
 }
