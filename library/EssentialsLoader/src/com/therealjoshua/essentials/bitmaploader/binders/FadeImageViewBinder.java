@@ -27,6 +27,7 @@ import android.widget.ImageView;
 
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.BitmapSource;
+import com.therealjoshua.essentials.bitmaploader.BitmapLoader.Callback;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.Cancelable;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.ErrorSource;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.LoadRequest;
@@ -60,8 +61,9 @@ public class FadeImageViewBinder extends ImageViewBinder {
 	}
 	
 	@Override
-	public Cancelable load(ImageView imageView, String uri, Options options, Rect outPadding) {
-		return super.load(imageView, uri, options, outPadding);
+	public Cancelable load(ImageView imageView, String uri, Callback callback, 
+			Options options, Rect outPadding) {
+		return super.load(imageView, uri, callback, options, outPadding);
 	}
 	
 	@Override
@@ -70,14 +72,8 @@ public class FadeImageViewBinder extends ImageViewBinder {
 		if (source == BitmapSource.MEMORY || !imageView.isShown()) {
 			super.onSuccess(imageView, bitmap, source, request);
 		} else {
-			Drawable currentDrawable = imageView.getDrawable();
-			if (currentDrawable == null) {
-				currentDrawable = new ColorDrawable(android.R.color.transparent);
-			}
-			Drawable[] fades = new Drawable[2];
-			fades[0] = currentDrawable;
-			fades[1] = getSuccessDrawable(bitmap);
-			crossFade(fades, imageView);
+			TransitionDrawable td = getSuccessFadeDrawable(imageView, bitmap);
+			applyTransition(td, imageView);
 		}
 	}
 	
@@ -87,26 +83,44 @@ public class FadeImageViewBinder extends ImageViewBinder {
 			super.onError(imageView, error, source, request);
 		}
 		else {
-			Drawable currentDrawable = imageView.getDrawable();
-			Drawable faultDrawable = getFaultDrawable();
-			if (currentDrawable == null) {
-				currentDrawable = new ColorDrawable(android.R.color.transparent);
-			}
-			if (faultDrawable == null) {
-				faultDrawable = new ColorDrawable(android.R.color.transparent);
-			}
-			Drawable[] fades = new Drawable[2];
-			fades[0] = currentDrawable;
-			fades[1] = faultDrawable;
-			crossFade(fades, imageView);
+			TransitionDrawable td = getErrorFadeDrawable(imageView);
+			applyTransition(td, imageView);
 		}
 	}
 	
-	private void crossFade(Drawable[] fades, ImageView imageView) {
+	protected TransitionDrawable getSuccessFadeDrawable(ImageView imageView, Bitmap bitmap) {
+		Drawable currentDrawable = imageView.getDrawable();
+		if (currentDrawable == null) {
+			currentDrawable = new ColorDrawable(android.R.color.transparent);
+		}
+		Drawable[] fades = new Drawable[2];
+		fades[0] = currentDrawable;
+		fades[1] = getSuccessDrawable(bitmap);
 		TransitionDrawable transitionDrawable = new TransitionDrawable(fades);
 		transitionDrawable.setCrossFadeEnabled(true);
-		imageView.setImageDrawable(transitionDrawable);
-		transitionDrawable.startTransition(transitionDuration);
+		return transitionDrawable;
+	}
+	
+	protected TransitionDrawable getErrorFadeDrawable(ImageView imageView) {
+		Drawable currentDrawable = imageView.getDrawable();
+		Drawable faultDrawable = getFaultDrawable();
+		if (currentDrawable == null) {
+			currentDrawable = new ColorDrawable(android.R.color.transparent);
+		}
+		if (faultDrawable == null) {
+			faultDrawable = new ColorDrawable(android.R.color.transparent);
+		}
+		Drawable[] fades = new Drawable[2];
+		fades[0] = currentDrawable;
+		fades[1] = faultDrawable;
+		TransitionDrawable transitionDrawable = new TransitionDrawable(fades);
+		transitionDrawable.setCrossFadeEnabled(true);
+		return transitionDrawable;
+	}
+	
+	protected void applyTransition(TransitionDrawable td, ImageView imageView) {
+		imageView.setImageDrawable(td);
+		td.startTransition(transitionDuration);
 	}
 	
 }

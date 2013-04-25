@@ -59,8 +59,8 @@ import com.therealjoshua.essentials.logger.Log;
  * like Google's lib
  * load(String uri, Callback, int targetWidth, int targetHeight)
  * 
- * 4) I can share the same bitmap, just not the same BitmapDrawable. Refactor the load to use the same 
- * Bitmap across drawable to save memory
+ * 4) Add a ContentHandler for the url. This allows me to check for internet connection there
+ * based upon the protocol. And if the client needs to modify the headers (such as no-cache) it can. 
  */
 
 /**

@@ -32,6 +32,7 @@ import android.view.View;
 
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.BitmapSource;
+import com.therealjoshua.essentials.bitmaploader.BitmapLoader.Callback;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.Cancelable;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.ErrorSource;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.LoadRequest;
@@ -78,7 +79,7 @@ public class GroupViewBinder<T extends View> {
 	 * @return Drawable to show
 	 */
 	public Drawable getLoadingDrawable() {
-		if (loadingBitmap == null) return null;
+//		if (loadingBitmap == null) return null;
 		return new BitmapDrawable(res, loadingBitmap);
 	}
 	
@@ -88,7 +89,7 @@ public class GroupViewBinder<T extends View> {
 	 * @return Drawable to show
 	 */
 	public Drawable getFaultDrawable() {
-		if (faultBitmap == null) return null;
+//		if (faultBitmap == null) return null;
 		return new BitmapDrawable(res, faultBitmap);
 	}
 	
@@ -155,7 +156,20 @@ public class GroupViewBinder<T extends View> {
 	 * @return A object used to cancel the load
 	 */
 	public Cancelable load(T view, String uri) {
-		return load(view, uri, null, null);
+		return load(view, uri, null, null, null);
+	}
+	
+	/**
+	 * Starts the loading sequence. Should a load call already be in place for the view passed 
+	 * in, the old call will be canceled and the new load call will proceed. 
+	 * 
+	 * @param view A view where the result of the load will be displayed
+	 * @param uri A location to the bitmap. Can be http:// or file:///
+	 * @param callback The callback for when a success of fail happens. A null value is ok.
+	 * @return A object used to cancel the load
+	 */
+	public Cancelable load(T view, String uri, Callback callback) {
+		return load(view, uri, callback, null, null);
 	}
 	
 	/**
@@ -169,7 +183,7 @@ public class GroupViewBinder<T extends View> {
 	 * @return A object used to cancel the load
 	 */
 	public Cancelable load(T view, String uri, BitmapFactory.Options options) {
-		return load(view, uri, options, null);
+		return load(view, uri, null, options, null);
 	}
 	
 	/**
@@ -178,14 +192,31 @@ public class GroupViewBinder<T extends View> {
 	 * 
 	 * @param view A view where the result of the load will be displayed
 	 * @param uri A location to the bitmap. Can be http:// or file:///
+	 * @param callback The callback for when a success of fail happens. A null value is ok.
+	 * @param options The BitmapFactory.Options options used to do manipulations to the image
+	 * while it's inflating
+	 * @return A object used to cancel the load
+	 */
+	public Cancelable load(T view, String uri, Callback callback, BitmapFactory.Options options) {
+		return load(view, uri, callback, options, null);
+	}
+	
+	/**
+	 * Starts the loading sequence. Should a load call already be in place for the view passed 
+	 * in, the old call will be canceled and the new load call will proceed. 
+	 * 
+	 * @param view A view where the result of the load will be displayed
+	 * @param uri A location to the bitmap. Can be http:// or file:///
+	 * @param callback The callback for when a success of fail happens. A null value is ok.
 	 * @param options The BitmapFactory.Options options used to do manipulations to the image
 	 * while it's inflating
 	 * @param outPadding A Rect from the BitmapFactory.decode method where the padding will be placed
 	 * @return A object used to cancel the load
 	 */
-	public Cancelable load(T view, String uri, BitmapFactory.Options options, Rect outPadding) {
+	public Cancelable load(T view, String uri, Callback callback, 
+			BitmapFactory.Options options, Rect outPadding) {
 		cancel(view);
-		Cancelable q = loader.load(uri, new Callback(view), options, outPadding);
+		Cancelable q = loader.load(uri, new ViewCallback(view, callback), options, outPadding);
 		cancelables.put(view, q);
 		return q;
 	}
@@ -236,11 +267,13 @@ public class GroupViewBinder<T extends View> {
 		
 	}
 	
-	private class Callback implements BitmapLoader.Callback {
+	private class ViewCallback implements Callback {
 		private WeakReference<T> ref;
+		private Callback callback;
 		
-		private Callback(T view) {
+		private ViewCallback(T view, Callback callback) {
 			ref = new WeakReference<T>(view);
+			this.callback = callback;
 		}
 		
 		@Override
@@ -248,6 +281,7 @@ public class GroupViewBinder<T extends View> {
 			T view = ref.get();
 			if (view != null) {
 				GroupViewBinder.this.onSuccess(view, bitmap, source, request);
+				if (callback != null) callback.onSuccess(bitmap, source, request);
 			}
 		}
 
@@ -256,6 +290,7 @@ public class GroupViewBinder<T extends View> {
 			T view = ref.get();
 			if (view != null) {
 				GroupViewBinder.this.onError(view,  error, source, request);
+				if (callback != null) callback.onError(error, source, request);
 			}
 		}
 	}
