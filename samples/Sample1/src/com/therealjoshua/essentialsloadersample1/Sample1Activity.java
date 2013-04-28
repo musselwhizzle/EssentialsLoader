@@ -11,7 +11,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 
-import com.therealjoshua.essentials.bitmaploader.BitmapLoaderLocator;
+import com.therealjoshua.essentials.bitmaploader.EssentialsLoaderLocator;
 import com.therealjoshua.essentials.bitmaploader.binders.FadeImageViewBinder;
 import com.therealjoshua.essentials.bitmaploader.binders.ImageViewBinder;
 
@@ -66,7 +66,7 @@ public class Sample1Activity extends Activity {
 			
 			// create a fade binder which is cross fade in the loaded image with 
 			// what's currently in the image view
-			binder = new FadeImageViewBinder(context, BitmapLoaderLocator.getBitmapLoader());
+			binder = new FadeImageViewBinder(context, EssentialsLoaderLocator.getBitmapLoader());
 			binder.setLoadingResource(R.drawable.gray_k02);
 			binder.setFaultResource(R.drawable.error_k02);
 		}

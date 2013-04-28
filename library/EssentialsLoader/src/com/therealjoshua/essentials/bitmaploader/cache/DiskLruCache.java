@@ -43,7 +43,7 @@ import java.util.regex.Pattern;
 
 /**
  * NOTE: 
- * This is code port from the ICS DiskLruCache from here:  
+ * This is code ported from the ICS DiskLruCache from here:  
  * https://android.googlesource.com/platform/libcore/+/android-4.2.2_r1/luni/src/main/java/libcore/io/DiskLruCache.java
  * 
  * by Jake Warton. You may grab his code from there: 

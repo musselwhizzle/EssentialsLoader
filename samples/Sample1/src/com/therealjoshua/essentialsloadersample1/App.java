@@ -9,7 +9,7 @@ import android.os.Build;
 
 import com.therealjoshua.essentials.logger.Log;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader;
-import com.therealjoshua.essentials.bitmaploader.BitmapLoaderLocator;
+import com.therealjoshua.essentials.bitmaploader.EssentialsLoaderLocator;
 import com.therealjoshua.essentials.bitmaploader.cache.BitmapLruCache;
 import com.therealjoshua.essentials.bitmaploader.cache.DiskLruCacheFacade;
 
@@ -52,9 +52,9 @@ public class App extends Application {
 		// stores the references in a locator for reference globally.
 		// there's many ways you could go about this, this one is just 
 		// simple and convenient. Feel free to use your own. 
-		BitmapLoaderLocator.putBitmapLoader(loader);
-		BitmapLoaderLocator.putMemoryCache(memCache);
-		BitmapLoaderLocator.putDiskCache(diskCache);
+		EssentialsLoaderLocator.putBitmapLoader(loader);
+		EssentialsLoaderLocator.putMemoryCache(memCache);
+		EssentialsLoaderLocator.putDiskCache(diskCache);
 	}
 
 }

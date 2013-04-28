@@ -45,13 +45,6 @@ import com.therealjoshua.essentials.logger.Log;
 /*
  * TO DO - FEATURES
  * 
- * 1) Allow for different content providers like file:// or asset
- * Could maybe do this be using ContentHandler (http://developer.android.com/reference/java/net/ContentHandler.html)
- * 
- * 2) Checking the network status is only relevant if fetching an image from a url.
- * this library could be expanded to do local image fetching like file:// in which case
- * this is not needed. How should I handle this? A simple boolean? Or should the 
- * content providers check for the internet if needed?
  * 
  * 3) add another load method where the width/height and not bitmapfactory.options
  * is the param. I can then set a max width/height and compress the image dynamically.
@@ -59,8 +52,6 @@ import com.therealjoshua.essentials.logger.Log;
  * like Google's lib
  * load(String uri, Callback, int targetWidth, int targetHeight)
  * 
- * 4) Add a ContentHandler for the url. This allows me to check for internet connection there
- * based upon the protocol. And if the client needs to modify the headers (such as no-cache) it can. 
  */
 
 /**
@@ -145,6 +136,24 @@ public class BitmapLoader {
 	}
 	
 	/**
+	 * The ConnectionFactory creates a URLConnection from the given URL.
+	 * The purpose of the factory is to allow calling clients a chance to
+	 * set custom properties on the URLConnection object like "no-cache" 
+	 * and custom timeouts. Custom URLStreamHandlers can also be set here
+	 * if the client decides to do so. 
+	 */
+	public static interface ConnectionFactory {
+		/**
+		 * Get a URLConnection object from the given uri.
+		 * 
+		 * @param uri
+		 * @return
+		 * @throws IOException
+		 */
+		public URLConnection getConnection(String uri) throws IOException;
+	}
+	
+	/**
 	 * Location of where the bitmap came from
 	 */
 	public static enum BitmapSource {
@@ -195,7 +204,7 @@ public class BitmapLoader {
 	private boolean canAccessNetworkState = false;
 	private Context appContext;
 	private ErrorLogFactory errorLogFactory;
-	
+	private ConnectionFactory connectionFactory;
 	
 	/**
 	 * Constructor
@@ -225,6 +234,7 @@ public class BitmapLoader {
 		if (hasPerm != PackageManager.PERMISSION_GRANTED) {
 			canAccessNetworkState = true;
 		}
+		connectionFactory = new ConnectionFactoryImpl();
 		
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 			executor = PortedAsyncTask.PENTA_THREAD_EXECUTOR;
@@ -241,7 +251,6 @@ public class BitmapLoader {
 	public void setExecuteOnExecutor(Executor executor) {
 		this.executor = executor;
 	}
-	
 	
 	/**
 	 * Gets the ErrorLogFactory that was set
@@ -261,6 +270,26 @@ public class BitmapLoader {
 	 */
 	public void setErrorLogFactory(ErrorLogFactory errorLogFactory) {
 		this.errorLogFactory = errorLogFactory;
+	}
+	
+	/**
+	 * Sets the URLConnectionFactory which controls the creation of the URLConnection.
+	 * Clients which need to set custom properties can set their own factory
+	 * and provide options on the connection like "no-cache" and such
+	 * 
+	 * @param connectionFactory
+	 */
+	public void setConnectionFactory(ConnectionFactory connectionFactory) {
+		this.connectionFactory = connectionFactory;
+	}
+	
+	/**
+	 * Get's the ConnectionFactory that was set 
+	 * 
+	 * @return ConnectionFactory
+	 */
+	public ConnectionFactory getConnectionFactory() {
+		return connectionFactory;
 	}
 	
 	/**
@@ -440,12 +469,9 @@ public class BitmapLoader {
 	 * @return
 	 * @throws IOException
 	 */
-	private Bitmap loadExternalBitmap(String url, BitmapFactory.Options options, Rect outPadding) throws IOException {
-		URL u = new URL(url);
-		URLConnection connection = u.openConnection();
-//		connection.setReadTimeout(10000); // sooo....this is hardcoded. probably need another way
-		// of processing bitmaps so that a user can control the connection better such as 
-		// disabling the httpcache
+	private Bitmap loadExternalBitmap(String url, BitmapFactory.Options options, Rect outPadding) 
+			throws IOException, Exception {
+		URLConnection connection = connectionFactory.getConnection(url);
 		final int IO_BUFFER_SIZE = 8 * 1024;
 		InputStream in = new BufferedInputStream(connection.getInputStream(), IO_BUFFER_SIZE);
 		Bitmap bitmap = BitmapFactory.decodeStream(in, outPadding, options);
@@ -481,6 +507,12 @@ public class BitmapLoader {
 	private String optionsToKey(BitmapFactory.Options options) {
     	if (options == null) return "1";
     	return Integer.toHexString(options.inSampleSize);
+	}
+	
+	private boolean needsInternet(String uri) {
+		String protocol = UrlUtils.getSchemePrefix(uri);
+		if (protocol == null) return false;
+		return !protocol.equals("file");
 	}
 	
 	private boolean hasInternet() {
@@ -583,11 +615,7 @@ public class BitmapLoader {
 				}
 				
 				// make sure we have internet before requesting the image
-				// FIX ME: This code makes the assumption we need internet for the image,
-				// this would be better encapsulated away. Will address this later.
-				// if I extend the loader to allow other resource types, like assets and
-				// disk
-				if (!hasInternet()) {
+				if (needsInternet(request.uri) && !hasInternet()) {
 					exc = new NetworkErrorException("No Network Connection");
 					errorSource = ErrorSource.NO_NETWORK;
 					return null;
@@ -610,15 +638,27 @@ public class BitmapLoader {
 						exc = in2;
 						errorSource = ErrorSource.EXTERNAL;
 					} catch (IOException in3) {
-						exc = in3;
+						exc = in3.getCause() != null ? in3.getCause() : in3;
 						errorSource = ErrorSource.EXTERNAL;
+					} catch (Exception in4) {
+						exc = in4;
+						if (in4 instanceof NetworkErrorException)
+							errorSource = ErrorSource.NO_NETWORK;
+						else 
+							errorSource = ErrorSource.EXTERNAL;
 					}
 				} catch (IOException e3) {
 					exc = e3;
 					errorSource = ErrorSource.EXTERNAL;
+				} catch (Exception e4) {
+					exc = e4;
+					if (e4 instanceof NetworkErrorException)
+						errorSource = ErrorSource.NO_NETWORK;
+					else 
+						errorSource = ErrorSource.EXTERNAL;
 				}
 				if (exc != null && errorLogFactory != null) {
-					ErrorLog errorLog = errorLogFactory.createErrorLog(request.uri, exc, ErrorSource.EXTERNAL);
+					ErrorLog errorLog = errorLogFactory.createErrorLog(request.uri, exc, errorSource);
 					errors.put(request.uri, errorLog);
 				}
 				
@@ -691,7 +731,7 @@ public class BitmapLoader {
 				}
 				
 				// make sure we have internet before requesting the image
-				if (!hasInternet()) {
+				if (needsInternet(request.uri) && !hasInternet()) {
 					exc = new NetworkErrorException("No Network Connection");
 					errorSource = ErrorSource.NO_NETWORK;
 					return null;
@@ -704,6 +744,11 @@ public class BitmapLoader {
 				} catch (IOException e) {
 					exc = e;
 					errorSource = ErrorSource.EXTERNAL;
+				} catch (Exception e) {
+					if (e instanceof NetworkErrorException)
+						errorSource = ErrorSource.NO_NETWORK;
+					else 
+						errorSource = ErrorSource.EXTERNAL;
 				}
 			}
 			
@@ -759,8 +804,38 @@ public class BitmapLoader {
 		@Override
 		public boolean isValid() {
 			long diff = System.currentTimeMillis() - when;
+			// TODO: maybe check for if the error is a NetworkErrorException
+			// and if we have internet now the error is no longer valid
+			// else use the time
 			return (diff < timeToBeValid);
 		}
+	}
+	
+	public static class ConnectionFactoryImpl implements ConnectionFactory {
+		
+		private int readTimeout = 0;
+		private int connectTimeout = 0;
+		
+		public ConnectionFactoryImpl() {
+		}
+		
+		public void setReadTimeout(int milli) {
+			this.readTimeout = milli;
+		}
+		
+		public void setConnectTimeout(int milli) {
+			this.connectTimeout = milli;
+		}
+		
+		@Override
+		public URLConnection getConnection(String url) throws IOException {
+			URL u = new URL(url);
+			URLConnection conn = u.openConnection();
+			if (connectTimeout > 0) conn.setConnectTimeout(connectTimeout);
+			if (readTimeout > 0) conn.setReadTimeout(readTimeout);
+			return conn;
+		}
+		
 	}
 	
 }

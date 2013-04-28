@@ -12,7 +12,7 @@ import com.therealjoshua.essentials.bitmaploader.BitmapLoader.BitmapSource;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.Cancelable;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.ErrorSource;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.LoadRequest;
-import com.therealjoshua.essentials.bitmaploader.BitmapLoaderLocator;
+import com.therealjoshua.essentials.bitmaploader.EssentialsLoaderLocator;
 
 /*
  * Shows working with the bitmap loader directly
@@ -26,7 +26,7 @@ public class Sample3Activity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		// a bitmaploader that uses the master memory cache but no disk cache
-		loader = new BitmapLoader(this, BitmapLoaderLocator.getMemoryCache(), null);
+		loader = new BitmapLoader(this, EssentialsLoaderLocator.getMemoryCache(), null);
 		setContentView(new MyRemoteView(this));
 	}
 	

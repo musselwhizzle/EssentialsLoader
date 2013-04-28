@@ -2,7 +2,7 @@ package com.therealjoshua.essentialsloadersample1;
 
 import java.io.File;
 
-import com.therealjoshua.essentials.bitmaploader.BitmapLoaderLocator;
+import com.therealjoshua.essentials.bitmaploader.EssentialsLoaderLocator;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -32,7 +32,7 @@ public class MainActivity extends Activity {
 			@SuppressLint("NewApi")
 			@Override
 			public void onClick(View v) {
-				BitmapLoaderLocator.getBitmapLoader().clearCache();
+				EssentialsLoaderLocator.getBitmapLoader().clearCache();
 				// really shouldn't do this on the UI thread...but hey it's an example
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
 					HttpResponseCache httpCache = HttpResponseCache.getInstalled();

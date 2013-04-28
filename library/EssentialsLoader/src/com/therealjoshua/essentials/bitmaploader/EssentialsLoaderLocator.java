@@ -29,7 +29,7 @@ import com.therealjoshua.essentials.bitmaploader.cache.Cache;
  * @author Joshua
  *
  */
-public class BitmapLoaderLocator {
+public class EssentialsLoaderLocator {
 	
 	public static final String DEFAULT_BITMAP_LOADER = "defaultBitmapLoader";
 	public static final String DEFAULT_MEMORY_CACHE = "defaultMemoryCache";
