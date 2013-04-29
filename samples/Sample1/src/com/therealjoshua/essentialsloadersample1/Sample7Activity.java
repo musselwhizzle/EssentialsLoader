@@ -69,7 +69,7 @@ public class Sample7Activity extends Activity {
 			
 			// get the standard error factory and set our own time to live on the errors
 			ErrorLogFactoryImpl errorFac = (ErrorLogFactoryImpl)loader.getErrorLogFactory();
-			errorFac.setTimeToLive(1000*2); // set to 2 minutes
+			errorFac.setTimeToLive(1000*2*60); // set to 2 minutes
 			
 			// set a custom URLConnection properties
 			loader.setConnectionFactory(new BitmapLoader.ConnectionFactory() {
@@ -78,8 +78,8 @@ public class Sample7Activity extends Activity {
 					URL u = new URL(uri);
 					URLConnection conn = u.openConnection();
 					conn.setUseCaches(false);
-					conn.setReadTimeout(4*1000);
-					conn.setConnectTimeout(4*1000);
+					conn.setReadTimeout(10*1000); // 10 sec
+					conn.setConnectTimeout(10*1000);
 					return conn;
 				}
 			});
