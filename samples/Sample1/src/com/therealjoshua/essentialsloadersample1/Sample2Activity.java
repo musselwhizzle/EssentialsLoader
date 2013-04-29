@@ -21,7 +21,7 @@ import com.therealjoshua.essentials.bitmaploader.BitmapLoader.BitmapSource;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.Cancelable;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.ErrorSource;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.LoadRequest;
-import com.therealjoshua.essentials.bitmaploader.EssentialsLoaderLocator;
+import com.therealjoshua.essentials.bitmaploader.Locator;
 import com.therealjoshua.essentials.bitmaploader.binders.SingleViewBinder;
 
 /*
@@ -35,7 +35,7 @@ public class Sample2Activity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		loader = EssentialsLoaderLocator.getBitmapLoader();
+		loader = Locator.getBitmapLoader();
 		viewPager = new ViewPager(this);
 		viewPager.setAdapter(new MyAdapter(this));
 		setContentView(viewPager);

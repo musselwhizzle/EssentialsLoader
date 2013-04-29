@@ -15,7 +15,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader;
-import com.therealjoshua.essentials.bitmaploader.EssentialsLoaderLocator;
+import com.therealjoshua.essentials.bitmaploader.Locator;
 import com.therealjoshua.essentials.bitmaploader.binders.ImageViewBinder;
 import com.therealjoshua.essentials.logger.Log;
 
@@ -96,7 +96,7 @@ public class Sample6Activity extends Activity {
             mImageViewLayoutParams = new GridView.LayoutParams(
                     LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
             
-            binder = new StarBinder(context, EssentialsLoaderLocator.getBitmapLoader());
+            binder = new StarBinder(context, Locator.getBitmapLoader());
             binder.setLoadingResource(R.drawable.empty_photo);
         }
 

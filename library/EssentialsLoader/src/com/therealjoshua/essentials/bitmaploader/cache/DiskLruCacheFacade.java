@@ -177,7 +177,7 @@ public class DiskLruCacheFacade implements Cache<String, Bitmap>, BitmapOptionsD
 //            quietlyAbortUnlessCommitted(editor);
         }
         long d = System.currentTimeMillis() - s;
-        Log.d(TAG, "time to write to disk: " + d);
+//        Log.d(TAG, "time to write to disk: " + d);
 	}
 
 	

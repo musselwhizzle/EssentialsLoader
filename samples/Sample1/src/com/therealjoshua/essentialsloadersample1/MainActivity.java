@@ -2,7 +2,7 @@ package com.therealjoshua.essentialsloadersample1;
 
 import java.io.File;
 
-import com.therealjoshua.essentials.bitmaploader.EssentialsLoaderLocator;
+import com.therealjoshua.essentials.bitmaploader.Locator;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 
 public class MainActivity extends Activity {
 
@@ -20,9 +21,11 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		ScrollView scroll = new ScrollView(this);
 		LinearLayout ll = new LinearLayout(this);
 		ll.setOrientation(LinearLayout.VERTICAL);
-		setContentView(ll);
+		scroll.addView(ll);
+		setContentView(scroll);
 		
 		Button btn;
 		
@@ -32,7 +35,7 @@ public class MainActivity extends Activity {
 			@SuppressLint("NewApi")
 			@Override
 			public void onClick(View v) {
-				EssentialsLoaderLocator.getBitmapLoader().clearCache();
+				Locator.getBitmapLoader().clearCache();
 				// really shouldn't do this on the UI thread...but hey it's an example
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
 					HttpResponseCache httpCache = HttpResponseCache.getInstalled();
@@ -45,7 +48,7 @@ public class MainActivity extends Activity {
 		});
 		ll.addView(btn);
 		
-		for (int i=1; i<=6; i++) {
+		for (int i=1; i<=7; i++) {
 			btn = new Button(this);
 			btn.setText("Sample " + i);
 			btn.setId(i);
@@ -73,6 +76,7 @@ public class MainActivity extends Activity {
 				case 4: startActivity(new Intent(MainActivity.this, Sample4Activity.class)); break;
 				case 5: startActivity(new Intent(MainActivity.this, Sample5Activity.class)); break;
 				case 6: startActivity(new Intent(MainActivity.this, Sample6Activity.class)); break;
+				case 7: startActivity(new Intent(MainActivity.this, Sample7Activity.class)); break;
 			}
 		}
 	};

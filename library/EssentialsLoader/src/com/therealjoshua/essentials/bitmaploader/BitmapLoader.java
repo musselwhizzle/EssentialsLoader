@@ -598,7 +598,7 @@ public class BitmapLoader {
 				if (bitmap != null) {
 					source = BitmapSource.DISK;
 					putInMemCache(request.uri, request.options, bitmap);
-					Log.i(TAG, "transaction time : " + (System.currentTimeMillis() - s));
+//					Log.i(TAG, "transaction time : " + (System.currentTimeMillis() - s));
 					return bitmap; 
 				}
 			}
@@ -670,7 +670,7 @@ public class BitmapLoader {
 					putInDiskCache(request.uri, request.options, bitmap);
 				}
 			}
-			Log.i(TAG, "transaction time : " + (System.currentTimeMillis() - s));
+//			Log.i(TAG, "transaction time : " + (System.currentTimeMillis() - s));
 			return bitmap;
 		}
 		
@@ -773,26 +773,43 @@ public class BitmapLoader {
 	 */
 	public static class ErrorLogFactoryImpl implements ErrorLogFactory {
 		
-		private long validationTime;
+		private long timeToLive;
 		
-		public ErrorLogFactoryImpl(long validationTime) {
-			this.validationTime = validationTime;
+		/**
+		 * Gets the time the error is considered valid
+		 * @return
+		 */
+		public long getTimeToLive() {
+			return timeToLive;
+		}
+		
+		/**
+		 * Sets in milliseconds how long this error is considered valid
+		 * 
+		 * @param validationTime milliseconds
+		 */
+		public void setTimeToLive(long timeToLiveMilli) {
+			this.timeToLive = timeToLiveMilli;
+		}
+		
+		public ErrorLogFactoryImpl(long timeToLiveMilli) {
+			this.timeToLive = timeToLiveMilli;
 		}
 		 
 		@Override
 		public ErrorLog createErrorLog(String url, Throwable exception, ErrorSource errorSource) {
-			return new ErrorLogImpl(validationTime, exception);
+			return new ErrorLogImpl(timeToLive, exception);
 		}
 	}
 	
 	private static class ErrorLogImpl implements ErrorLog {
 		private long when;
 		private Throwable thr;
-		private long timeToBeValid;
+		private long timeToLive;
 		
-		private ErrorLogImpl(long validTime, Throwable error) {
+		private ErrorLogImpl(long timeToLiveMilli, Throwable error) {
 			thr = error;
-			timeToBeValid = validTime;
+			timeToLive = timeToLiveMilli;
 			when = System.currentTimeMillis();
 		}
 		
@@ -807,7 +824,7 @@ public class BitmapLoader {
 			// TODO: maybe check for if the error is a NetworkErrorException
 			// and if we have internet now the error is no longer valid
 			// else use the time
-			return (diff < timeToBeValid);
+			return (diff < timeToLive);
 		}
 	}
 	

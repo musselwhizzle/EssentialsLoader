@@ -9,13 +9,13 @@ import android.os.Build;
 
 import com.therealjoshua.essentials.logger.Log;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader;
-import com.therealjoshua.essentials.bitmaploader.EssentialsLoaderLocator;
+import com.therealjoshua.essentials.bitmaploader.Locator;
 import com.therealjoshua.essentials.bitmaploader.cache.BitmapLruCache;
 import com.therealjoshua.essentials.bitmaploader.cache.DiskLruCacheFacade;
 
 public class App extends Application {
 	
-	long DEFAULT_CACHE_SIZE = 16 * 1024 * 1024; // 16 MB
+	private static final long HTTP_CACHE_SIZE = 16 * 1024 * 1024; // 16 MB
 	
 	
 	@Override
@@ -30,7 +30,7 @@ public class App extends Application {
 	private void installHttpCache() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
 			try {
-				HttpResponseCache.install(new File(getCacheDir(), "HttpCache"), DEFAULT_CACHE_SIZE);
+				HttpResponseCache.install(new File(getCacheDir(), "HttpCache"), HTTP_CACHE_SIZE);
 			} catch (Exception e) {
 				Log.w("App", "Could not create http cache. Permissions???");
 			}
@@ -52,9 +52,9 @@ public class App extends Application {
 		// stores the references in a locator for reference globally.
 		// there's many ways you could go about this, this one is just 
 		// simple and convenient. Feel free to use your own. 
-		EssentialsLoaderLocator.putBitmapLoader(loader);
-		EssentialsLoaderLocator.putMemoryCache(memCache);
-		EssentialsLoaderLocator.putDiskCache(diskCache);
+		Locator.putBitmapLoader(loader);
+		Locator.putMemoryCache(memCache);
+		Locator.putDiskCache(diskCache);
 	}
 
 }

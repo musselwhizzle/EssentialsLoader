@@ -23,13 +23,11 @@ import android.graphics.Bitmap;
 import com.therealjoshua.essentials.bitmaploader.cache.Cache;
 
 /**
- * This class is used to store global instances of the BitmapLoader (and caches, maybe refactor???) 
+ * This class is used to store global instances of the BitmapLoader and Caches 
  * so that it can be shared across the application
  * 
- * @author Joshua
- *
  */
-public class EssentialsLoaderLocator {
+public class Locator {
 	
 	public static final String DEFAULT_BITMAP_LOADER = "defaultBitmapLoader";
 	public static final String DEFAULT_MEMORY_CACHE = "defaultMemoryCache";

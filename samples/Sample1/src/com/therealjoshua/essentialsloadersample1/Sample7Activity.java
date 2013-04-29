@@ -1,5 +1,9 @@
 package com.therealjoshua.essentialsloadersample1;
 
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
+
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.BitmapFactory;
@@ -11,14 +15,19 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 
+import com.therealjoshua.essentials.bitmaploader.BitmapLoader;
+import com.therealjoshua.essentials.bitmaploader.BitmapLoader.ErrorLogFactoryImpl;
 import com.therealjoshua.essentials.bitmaploader.Locator;
+import com.therealjoshua.essentials.bitmaploader.PortedAsyncTask;
+import com.therealjoshua.essentials.bitmaploader.BitmapLoader.ErrorLog;
+import com.therealjoshua.essentials.bitmaploader.BitmapLoader.ErrorSource;
 import com.therealjoshua.essentials.bitmaploader.binders.FadeImageViewBinder;
 import com.therealjoshua.essentials.bitmaploader.binders.ImageViewBinder;
 
 /*
- * Standard listview using the loader
+ * Standard listview using the loader with custom factories
  */
-public class Sample1Activity extends Activity {
+public class Sample7Activity extends Activity {
 	
 	private ListView listView;
 	@SuppressWarnings("unused")
@@ -30,18 +39,6 @@ public class Sample1Activity extends Activity {
 		listView = new ListView(this);
 		listView.setDrawSelectorOnTop(true);
 		listView.setAdapter(adapter = new MyAdapter(this));
-		
-		// this is rather unnecessary, but if you want to listen
-		// to when the renderer gets removed the listview you can
-		// and then manually stop the load. I say it's unnecessary
-		// because calling a new load automatically stops the old load
-		/*
-		listView.setRecyclerListener(new AbsListView.RecyclerListener() {
-			@Override
-			public void onMovedToScrapHeap(View view) {
-				adapter.binder.cancel((ImageView)view);
-			}
-		});*/
 		setContentView(listView);
 	}
 	
@@ -64,9 +61,33 @@ public class Sample1Activity extends Activity {
 			}
 			height = (int)(width / (16/9f));
 			
+			// create a custom loader
+			BitmapLoader loader = new BitmapLoader(context, Locator.getMemoryCache(), Locator.getDiskCache());
+			
+			// exectuor on a custom executor
+			loader.setExecuteOnExecutor(PortedAsyncTask.DUAL_THREAD_EXECUTOR);
+			
+			// get the standard error factory and set our own time to live on the errors
+			ErrorLogFactoryImpl errorFac = (ErrorLogFactoryImpl)loader.getErrorLogFactory();
+			errorFac.setTimeToLive(1000*2); // set to 2 minutes
+			
+			// set a custom URLConnection properties
+			loader.setConnectionFactory(new BitmapLoader.ConnectionFactory() {
+				@Override
+				public URLConnection getConnection(String uri) throws IOException {
+					URL u = new URL(uri);
+					URLConnection conn = u.openConnection();
+					conn.setUseCaches(false);
+					conn.setReadTimeout(4*1000);
+					conn.setConnectTimeout(4*1000);
+					return conn;
+				}
+			});
+			
+			
 			// create a fade binder which is cross fade in the loaded image with 
 			// what's currently in the image view
-			binder = new FadeImageViewBinder(context, Locator.getBitmapLoader());
+			binder = new FadeImageViewBinder(context, loader);
 			binder.setLoadingResource(R.drawable.gray_k02);
 			binder.setFaultResource(R.drawable.error_k02);
 		}
