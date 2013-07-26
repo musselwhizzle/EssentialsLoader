@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.concurrent.Executor;
 
 import android.accounts.NetworkErrorException;
@@ -40,19 +41,7 @@ import android.support.v4.util.LruCache;
 import android.text.TextUtils;
 
 import com.therealjoshua.essentials.bitmaploader.cache.Cache;
-import com.therealjoshua.essentials.logger.Log;
-
-/*
- * TO DO - FEATURES
- * 
- * 
- * 3) add another load method where the width/height and not bitmapfactory.options
- * is the param. I can then set a max width/height and compress the image dynamically.
- * To do this, I'll probably need my own httpcache with the original image in it 
- * like Google's lib
- * load(String uri, Callback, int targetWidth, int targetHeight)
- * 
- */
+import com.therealjoshua.essentials.bitmaploader.processors.BitmapProcessor;
 
 /**
  * This class is responsible for the actual loading process. Generally, you will not 
@@ -181,18 +170,144 @@ public class BitmapLoader {
 	
 	/**
 	 * This class is a transfer object of the parameters used to make the 
-	 * load request. It is returned in the callback on a success.
+	 * load request. It configures how the image will be loaded
 	 *
 	 */
 	public static class LoadRequest {
-		private LoadRequest() {}
+		public LoadRequest(BitmapLoader loader) {
+			this.loader = loader;
+		}
+		private BitmapLoader loader;
 		private String uri;
 		private BitmapFactory.Options options;
 		private Rect outPadding;
+		private Callback callback;
 		
-		public String getUri() { return uri; }
+		
 		public BitmapFactory.Options getOptions() { return options; }
-		public Rect geOutPadding() { return outPadding; }
+		public Rect getOutPadding() { return outPadding; }
+		
+		private ArrayList<BitmapProcessor> processes;
+		
+		/**
+		 * Gets the URI that was set for the request
+		 * @return
+		 */
+		public String getUri() { 
+			return uri; 
+		}
+		
+		/**
+		 * Set the URI for the image to load
+		 * @param uri
+		 * @return An instance of this to daisy chain
+		 */
+		public LoadRequest setUri(String uri) {
+			this.uri = uri;
+			return this;
+		}
+		
+		/**
+		 * Gets the callback that was set. 
+		 * 
+		 * @return Callback
+		 */
+		public Callback getCallback() {
+			return callback;
+		}
+		
+		/**
+		 * The callback used for notification about the state of the loading process
+		 * 
+		 * @param callback
+		 * @return An instance of this to daisy chain
+		 */
+		public LoadRequest setCallback(Callback callback) {
+			this.callback = callback;
+			return this;
+		}
+		
+		/**
+		 * Sets the BitmapFactory.Options for when decompressing the image
+		 * 
+		 * @param options standard BitmapFactory.Options
+		 * @return An instance of this to daisy chain
+		 */
+		public LoadRequest setBitmapFactoryOptions(BitmapFactory.Options options) {
+			this.options = options;
+			return this;
+		}
+		
+		/**
+		 * Sets the OutPadding Rect used in in the BitmapFactory.decode method
+		 * 
+		 * @param outPadding Standard Rect
+		 * @return An instance of this to daisy chain
+		 */
+		public LoadRequest setOutPadding(Rect outPadding) {
+			this.outPadding = outPadding;
+			return this;
+		}
+		
+		/**
+		 * Adds an image process allowing a client to make modifications to the image 
+		 * in a background thread before it is returned. The manipulations are cacheable. 
+		 * 
+		 * @param processor 
+		 * @return An instance of this to daisy chain
+		 */
+		public LoadRequest addBitmapProcessor(BitmapProcessor processor) {
+			if (processor == null) return this;
+			if (processes == null) processes = new ArrayList<BitmapProcessor>();
+			processes.add(processor);
+			return this;
+		}
+		
+		/**
+		 * Starts the loading process
+		 * @return The Cancelable task that is loading the image
+		 */
+		public Cancelable load() {
+			return loader.load(this);
+		}
+		
+		/**
+		 * Generates a savable name for the image loaded via the url and other options
+		 * The same url that has different options will produce different keys. 
+		 * 
+		 * @param url
+		 * @param options
+		 * @return
+		 */
+		private String generateKey() {
+			// http://stackoverflow.com/questions/332079/in-java-how-do-i-convert-a-byte-array-to-a-string-of-hex-digits-while-keeping-l
+			// http://developer.android.com/training/displaying-bitmaps/load-bitmap.html
+			// doesn't seem a need to use MD5, so just hash it.
+			StringBuilder b = new StringBuilder();
+			
+			b.append( uri.hashCode() );
+			
+			if (options == null) b.append("_1");
+			else {
+				b.append("_");
+				b.append( options.inSampleSize );
+			}
+			
+			if (processes != null) {
+				for (BitmapProcessor p : processes) {
+					b.append("_");
+					b.append(p.getId());
+				}
+			}
+		
+			return Integer.toHexString(b.toString().hashCode());
+		}
+	}
+	
+	public LoadRequest build(String uri) {
+		LoadRequest r = new LoadRequest(this);
+		r.uri = uri;
+		return r;
 	}
 	
 	private static final String TAG = BitmapLoader.class.getSimpleName();
@@ -297,56 +412,17 @@ public class BitmapLoader {
 	 * then it moves to checking the disk cache and finally it will go to an external source (the web). 
 	 * Before checking for the image on the web, the call will check to see if the url is in a cache of
 	 * IO errors such the call has failed previously. If this is the case and the error is considered
-	 * valid, the call will return immediately. 
-	 * 
-	 * @param uri Uri of the image to load. Can be http:// or file://
-	 * @param callback The callback for when a success of fail happens. A null value is ok.
-	 * @return a token which may be null which can be used to cancel the loading task
-	 */
-	public Cancelable load(String uri, Callback callback) {
-		return load(uri, callback, null, null);
-	}
-	
-	/**
-	 * Call to load an bitmap. The call will first check if the image is available in memory, 
-	 * then it moves to checking the disk cache and finally it will go to an external source (the web). 
-	 * Before checking for the image on the web, the call will check to see if the url is in a cache of
-	 * IO errors such the call has failed previously. If this is the case and the error is considered
 	 * valid, the call will return immediately.
 	 * 
-	 * @param uri Uri of the image to load. Can be http:// or file://
-	 * @param callback The callback for when a success of fail happens. A null value is ok.
-	 * @param options the {BitmapFactory.Options} as used in the BitmapFactory.decode method
-	 * @return a token which may be null which can be used to cancel the loading task
-	 */
-	public Cancelable load(String uri, Callback callback, BitmapFactory.Options options) {
-		return load(uri, callback, options, null);
-	}
-	
-	/**
-	 * Call to load an bitmap. The call will first check if the image is available in memory, 
-	 * then it moves to checking the disk cache and finally it will go to an external source (the web). 
-	 * Before checking for the image on the web, the call will check to see if the url is in a cache of
-	 * IO errors such the call has failed previously. If this is the case and the error is considered
-	 * valid, the call will return immediately.
-	 * 
-	 * @param uri Uri of the image to load. Can be http:// or file://
-	 * @param callback The callback for when a success of fail happens. A null value is ok.
-	 * @param options the {BitmapFactory.Options} as used in the BitmapFactory.decode method
-	 * @param outPadding the {Rect} as used in the BitmapFactory.decode method
+	 * @param request The value object used to describe how the image should be loaded.
 	 * @return a token which may be null which can be used to cancel the loading task
 	 */
 	@SuppressLint("NewApi")
-	public Cancelable load(String uri, Callback callback, BitmapFactory.Options options, Rect outPadding) {
-		
-		LoadRequest request = new LoadRequest();
-		request.uri = uri;
-		request.options = options;
-		request.outPadding = outPadding;
+	public Cancelable load(LoadRequest request) {
 		
 		// if the url is blank, fault out immediately
-		if (TextUtils.isEmpty(uri)) {
-			if (callback != null) callback.onError(
+		if (TextUtils.isEmpty(request.uri)) {
+			if (request.callback != null) request.callback.onError(
 					new IllegalArgumentException("Uri is empty"), 
 					ErrorSource.ARGUMENT,
 					request);
@@ -354,9 +430,9 @@ public class BitmapLoader {
 		}
 		
 		// if the url is in our cached urls, fault out immediately
-		ErrorLog error = getValidError(uri);
+		ErrorLog error = getValidError(request.uri);
 		if (error != null) {
-			if (callback != null) callback.onError(error.getError(), 
+			if (request.callback != null) request.callback.onError(error.getError(), 
 					ErrorSource.ERROR_CACHE, 
 					request);
 			return null;
@@ -365,21 +441,21 @@ public class BitmapLoader {
 		Bitmap bitmap = null;
 		
 		// check if the image is in memory
-		bitmap = getFromMemCache(uri, options);
+		bitmap = getFromMemCache(request);
 		if (bitmap != null) {
-			if (callback != null) callback.onSuccess(bitmap, BitmapSource.MEMORY, request);
+			if (request.callback != null) request.callback.onSuccess(bitmap, BitmapSource.MEMORY, request);
 			return null;
 		}
 		
 		// if the image was no in memory, begin to load it async
 		if (request.options != null && request.options.inJustDecodeBounds) {
-			FetchImageBoundsOnlyTask task = new FetchImageBoundsOnlyTask(callback);
+			FetchImageBoundsOnlyTask task = new FetchImageBoundsOnlyTask(request.callback);
 			if (executor != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) 
 				task.executeOnExecutor(executor, request);
 			else task.execute(request);
 			return task;
 		} else {
-			FetchImageTask task = new FetchImageTask(callback);
+			FetchImageTask task = new FetchImageTask(request.callback);
 			if (executor != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) 
 				task.executeOnExecutor(executor, request);
 			else task.execute(request);
@@ -430,35 +506,20 @@ public class BitmapLoader {
 	/**
 	 * Convenience method to get a Bitmap from the memory cache
 	 */
-	public Bitmap getFromMemCache(String url, BitmapFactory.Options options) {
+	public Bitmap getFromMemCache(LoadRequest request) {
 		if (memCache == null) return null;
-		return memCache.get(generateKey(url, options));
+		return memCache.get(request.generateKey());
 	}
 	
 	/**
-	 * Convenience method to get a Bitmap from the disdk cache. Do not call this method from the UI 
+	 * Convenience method to get a Bitmap from the disk cache. Do not call this method from the UI 
 	 * thread.
 	 */
-	public Bitmap getFromDiskCache(String url, BitmapFactory.Options options, Rect outPadding) {
+	public Bitmap getFromDiskCache(LoadRequest request) {
 		if (diskCache == null) return null;
 		if (diskCache instanceof BitmapOptionsDecoder) 
-			((BitmapOptionsDecoder)diskCache).setOptions(options, outPadding);
-		return diskCache.get(generateKey(url, options));
-	}
-	
-	/**
-	 * Generates a savable name for the image loaded via the url and BitmapFactory.Options. 
-	 * A url that has different bitmap options will produce different keys. 
-	 * 
-	 * @param url
-	 * @param options
-	 * @return
-	 */
-	protected String generateKey(String url, BitmapFactory.Options options) {
-		// http://stackoverflow.com/questions/332079/in-java-how-do-i-convert-a-byte-array-to-a-string-of-hex-digits-while-keeping-l
-		// http://developer.android.com/training/displaying-bitmaps/load-bitmap.html
-		// doesn't seem a need to use MD5, so just hash it.
-		return Integer.toHexString(url.hashCode()) + optionsToKey(options);
+			((BitmapOptionsDecoder)diskCache).setOptions(request.options, request.outPadding);
+		return diskCache.get(request.generateKey());
 	}
 	
 	/**
@@ -478,6 +539,16 @@ public class BitmapLoader {
 		return bitmap;
 	}
 	
+	// should the LoadRequest just apply the processors?
+	private Bitmap applyBitmapProcessors(LoadRequest request, Bitmap src) {
+		if (request.processes == null) return src;
+		Bitmap bm = src;
+		for (BitmapProcessor p : request.processes) {
+			bm = p.process(bm);
+		}
+		return bm;
+	}
+	
 	private ErrorLog getValidError(String url) {
 		ErrorLog error = errors.get(url);
 		if (error == null) return null;
@@ -492,21 +563,16 @@ public class BitmapLoader {
 		return errors.get(url);
 	}
 	
-	private void putInMemCache(String url, BitmapFactory.Options options, Bitmap bitmap) {
+	private void putInMemCache(LoadRequest request, Bitmap bitmap) {
 		if (memCache != null) {
-			memCache.put(generateKey(url, options), bitmap);
+			memCache.put(request.generateKey(), bitmap);
 		}
 	}
 	
-	private void putInDiskCache(String url, BitmapFactory.Options options, Bitmap bitmap) {
+	private void putInDiskCache(LoadRequest request, Bitmap bitmap) {
 		if (diskCache != null) {
-			diskCache.put(generateKey(url, options), bitmap);
+			diskCache.put(request.generateKey(), bitmap);
 		}
-	}
-	
-	private String optionsToKey(BitmapFactory.Options options) {
-    	if (options == null) return "1";
-    	return Integer.toHexString(options.inSampleSize);
 	}
 	
 	private boolean needsInternet(String uri) {
@@ -564,40 +630,38 @@ public class BitmapLoader {
 			
 			// if task is not canceled, check if the image is in the memory
 			if (!isCancelled()) {
-				bitmap = getFromMemCache(request.uri, request.options);
+				bitmap = getFromMemCache(request);
 				if (bitmap != null) {
 					source = BitmapSource.MEMORY;
 					// add to the disk cache while here
 					// at this point, we don't care if the task has been canceled
 					if (diskCache != null) {
-						boolean hasItem = diskCache.hasObject(generateKey(request.uri, request.options));
+						boolean hasItem = diskCache.hasObject(request.generateKey());
 						if (!hasItem) {
-							putInDiskCache(request.uri, request.options, bitmap);
+							putInDiskCache(request, bitmap);
 						}
 					}
 					return bitmap; 
 				}
 			}
 			
-			long s = System.currentTimeMillis();
-			
 			// if task is not canceled, check if the image is in the disk cache
 			if (!isCancelled()) {
 				try {
-					bitmap = getFromDiskCache(request.uri, request.options, request.outPadding);
+					bitmap = getFromDiskCache(request);
 				} catch (OutOfMemoryError e) {
 					// clear up some memory and let's try again
 					clearMemCache();
 					System.gc();
 					try {
-						bitmap = getFromDiskCache(request.uri, request.options, request.outPadding);
+						bitmap = getFromDiskCache(request);
 					} catch (OutOfMemoryError e2) {
 						// give up
 					}
 				}
 				if (bitmap != null) {
 					source = BitmapSource.DISK;
-					putInMemCache(request.uri, request.options, bitmap);
+					putInMemCache(request, bitmap);
 //					Log.i(TAG, "transaction time : " + (System.currentTimeMillis() - s));
 					return bitmap; 
 				}
@@ -627,12 +691,14 @@ public class BitmapLoader {
 				// to the disk cache....right? Or does bitmap options matter here. 
 				try {
 					bitmap = loadExternalBitmap(request.uri, request.options, request.outPadding);
+					bitmap = applyBitmapProcessors(request, bitmap);
 				} catch (OutOfMemoryError e) {
 					clearMemCache();
 					System.gc();
 					try {
 						// try 1 more time
 						bitmap = loadExternalBitmap(request.uri, request.options, request.outPadding);
+						bitmap = applyBitmapProcessors(request, bitmap);
 					} catch (OutOfMemoryError in2) {
 						// give up
 						exc = in2;
@@ -666,8 +732,8 @@ public class BitmapLoader {
 					source = BitmapSource.EXTERNAL;
 					// add to the disk cache while here
 					// at this point, we don't care if the task has been canceled
-					putInMemCache(request.uri, request.options, bitmap);
-					putInDiskCache(request.uri, request.options, bitmap);
+					putInMemCache(request, bitmap);
+					putInDiskCache(request, bitmap);
 				}
 			}
 //			Log.i(TAG, "transaction time : " + (System.currentTimeMillis() - s));
@@ -714,9 +780,9 @@ public class BitmapLoader {
 			request = params[0];
 			
 			if (!isCancelled() && diskCache != null && checkDiskCache) {
-				boolean hasObject = diskCache.hasObject(generateKey(request.uri, request.options));
+				boolean hasObject = diskCache.hasObject(request.generateKey());
 				if (hasObject) {
-					getFromDiskCache(request.uri, request.options, request.outPadding);
+					getFromDiskCache(request);
 					source = BitmapSource.DISK;
 					return null;
 				}

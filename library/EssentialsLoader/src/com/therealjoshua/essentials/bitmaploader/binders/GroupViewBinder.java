@@ -17,6 +17,7 @@
 package com.therealjoshua.essentials.bitmaploader.binders;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.WeakHashMap;
@@ -25,7 +26,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.View;
@@ -36,6 +36,12 @@ import com.therealjoshua.essentials.bitmaploader.BitmapLoader.Callback;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.Cancelable;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.ErrorSource;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.LoadRequest;
+import com.therealjoshua.essentials.bitmaploader.processors.BitmapProcessor;
+import com.therealjoshua.essentials.bitmaploader.processors.InverseProcessor;
+import com.therealjoshua.essentials.bitmaploader.processors.ResizeProcessor;
+import com.therealjoshua.essentials.bitmaploader.processors.RotateProcessor;
+import com.therealjoshua.essentials.bitmaploader.processors.SaturationProcessor;
+import com.therealjoshua.essentials.bitmaploader.Locator;
 
 /**
  * The GroupViewBinder is an abstract class used to bind the loading to a view.
@@ -57,6 +63,17 @@ public class GroupViewBinder<T extends View> {
 	private Bitmap faultBitmap;
 	private Context context;
 	private Resources res;
+	private HashMap<String, BitmapProcessor> processorsPool = new HashMap<String, BitmapProcessor>();
+	
+	/**
+	 * Constructor which uses the default BitmapLoader object in the Locator. If you need a specific
+	 * BitmapLoader use the GroupViewBinder(Context context, BitmapLoader loader) method
+	 * 
+	 * @param context A general context;
+	 */
+	public GroupViewBinder(Context context) {
+		this(context, Locator.getBitmapLoader());
+	}
 	
 	public GroupViewBinder(Context context, BitmapLoader loader) {
 		this.context = context;
@@ -147,78 +164,8 @@ public class GroupViewBinder<T extends View> {
 		return faultBitmap;
 	}
 	
-	/**
-	 * Starts the loading sequence. Should a load call already be in place for the view passed 
-	 * in, the old call will be canceled and the new load call will proceed. 
-	 * 
-	 * @param view A view where the result of the load will be displayed
-	 * @param uri A location to the bitmap. Can be http:// or file:///
-	 * @return A object used to cancel the load
-	 */
 	public Cancelable load(T view, String uri) {
-		return load(view, uri, null, null, null);
-	}
-	
-	/**
-	 * Starts the loading sequence. Should a load call already be in place for the view passed 
-	 * in, the old call will be canceled and the new load call will proceed. 
-	 * 
-	 * @param view A view where the result of the load will be displayed
-	 * @param uri A location to the bitmap. Can be http:// or file:///
-	 * @param callback The callback for when a success of fail happens. A null value is ok.
-	 * @return A object used to cancel the load
-	 */
-	public Cancelable load(T view, String uri, Callback callback) {
-		return load(view, uri, callback, null, null);
-	}
-	
-	/**
-	 * Starts the loading sequence. Should a load call already be in place for the view passed 
-	 * in, the old call will be canceled and the new load call will proceed. 
-	 * 
-	 * @param view A view where the result of the load will be displayed
-	 * @param uri A location to the bitmap. Can be http:// or file:///
-	 * @param options The BitmapFactory.Options options used to do manipulations to the image
-	 * while it's inflating
-	 * @return A object used to cancel the load
-	 */
-	public Cancelable load(T view, String uri, BitmapFactory.Options options) {
-		return load(view, uri, null, options, null);
-	}
-	
-	/**
-	 * Starts the loading sequence. Should a load call already be in place for the view passed 
-	 * in, the old call will be canceled and the new load call will proceed. 
-	 * 
-	 * @param view A view where the result of the load will be displayed
-	 * @param uri A location to the bitmap. Can be http:// or file:///
-	 * @param callback The callback for when a success of fail happens. A null value is ok.
-	 * @param options The BitmapFactory.Options options used to do manipulations to the image
-	 * while it's inflating
-	 * @return A object used to cancel the load
-	 */
-	public Cancelable load(T view, String uri, Callback callback, BitmapFactory.Options options) {
-		return load(view, uri, callback, options, null);
-	}
-	
-	/**
-	 * Starts the loading sequence. Should a load call already be in place for the view passed 
-	 * in, the old call will be canceled and the new load call will proceed. 
-	 * 
-	 * @param view A view where the result of the load will be displayed
-	 * @param uri A location to the bitmap. Can be http:// or file:///
-	 * @param callback The callback for when a success of fail happens. A null value is ok.
-	 * @param options The BitmapFactory.Options options used to do manipulations to the image
-	 * while it's inflating
-	 * @param outPadding A Rect from the BitmapFactory.decode method where the padding will be placed
-	 * @return A object used to cancel the load
-	 */
-	public Cancelable load(T view, String uri, Callback callback, 
-			BitmapFactory.Options options, Rect outPadding) {
-		cancel(view);
-		Cancelable q = loader.load(uri, new ViewCallback(view, callback), options, outPadding);
-		cancelables.put(view, q);
-		return q;
+		return build(view, uri).load();
 	}
 	
 	/**
@@ -265,6 +212,106 @@ public class GroupViewBinder<T extends View> {
 	 */
 	protected void onError(T view, Throwable error, ErrorSource source, LoadRequest request) {
 		
+	}
+	
+	public static class ViewBinderLoadRequest<T extends View> extends BitmapLoader.LoadRequest {
+		private GroupViewBinder<T> binder;
+		private WeakReference<T> view;
+		private ViewBinderLoadRequest(GroupViewBinder<T> binder, BitmapLoader loader) {
+			super(loader);
+			this.binder = binder;
+		}
+		
+		@Override
+		public Cancelable load() {
+			return binder.load(view.get(), this);
+		}
+		
+		@SuppressWarnings("rawtypes")
+		public ViewBinderLoadRequest resizeTo(int width, int height) {
+			if (binder.processorsPool.containsKey("resize")) {
+				ResizeProcessor rp = (ResizeProcessor)binder.processorsPool.get("resize");
+				if (rp.getWidth() == width && rp.getHeight() == height) {
+					addBitmapProcessor(rp);
+				} else {
+					ResizeProcessor p = new ResizeProcessor(width, height);
+					binder.processorsPool.put("resize", p);
+					addBitmapProcessor(p);
+				}
+			} else {
+				ResizeProcessor p = new ResizeProcessor(width, height);
+				binder.processorsPool.put("resize", p);
+				addBitmapProcessor(p);
+			}
+			return this;
+		}
+		
+		@SuppressWarnings("rawtypes")
+		public ViewBinderLoadRequest saturate(int saturation) {
+			if (binder.processorsPool.containsKey("saturate")) {
+				SaturationProcessor sp = (SaturationProcessor)binder.processorsPool.get("saturate");
+				if (sp.getSaturation() == saturation) {
+					addBitmapProcessor(sp);
+				} else {
+					SaturationProcessor p = new SaturationProcessor(saturation);
+					binder.processorsPool.put("saturate", p);
+					addBitmapProcessor(p);
+				}
+			} else {
+				SaturationProcessor p = new SaturationProcessor(saturation);
+				binder.processorsPool.put("saturate", p);
+				addBitmapProcessor(p);
+			}
+			return this;
+		}
+		
+		@SuppressWarnings("rawtypes")
+		public ViewBinderLoadRequest rotate(int degrees) {
+			if (binder.processorsPool.containsKey("rotate")) {
+				RotateProcessor rp = (RotateProcessor)binder.processorsPool.get("rotate");
+				if (rp.getDegrees() == degrees) {
+					addBitmapProcessor(rp);
+				} else {
+					RotateProcessor p = new RotateProcessor(degrees);
+					binder.processorsPool.put("rotate", p);
+					addBitmapProcessor(p);
+				}
+			} else {
+				RotateProcessor p = new RotateProcessor(degrees);
+				binder.processorsPool.put("rotate", p);
+				addBitmapProcessor(p);
+			}
+			return this;
+		}
+		
+		@SuppressWarnings("rawtypes")
+		public ViewBinderLoadRequest inverse() {
+			if (binder.processorsPool.containsKey("inverse")) {
+				InverseProcessor ip = (InverseProcessor)binder.processorsPool.get("inverse");
+				addBitmapProcessor(ip);
+			} else {
+				InverseProcessor p = new InverseProcessor();
+				binder.processorsPool.put("inverse", p);
+				addBitmapProcessor(p);
+			}
+			return this;
+		}
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public ViewBinderLoadRequest build(T view, String uri) {
+		ViewBinderLoadRequest<T> r = new ViewBinderLoadRequest(this, loader);
+		r.setUri(uri);
+		r.view = new WeakReference(view);
+		return r;
+	}
+	
+	public Cancelable load(T view, BitmapLoader.LoadRequest request) {
+		cancel(view);
+		request.setCallback(new ViewCallback(view, request.getCallback()));
+		Cancelable q = loader.load(request);
+		cancelables.put(view, q);
+		return q;
 	}
 	
 	private class ViewCallback implements Callback {

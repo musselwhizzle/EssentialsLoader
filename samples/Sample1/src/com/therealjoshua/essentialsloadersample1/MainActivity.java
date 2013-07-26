@@ -48,7 +48,7 @@ public class MainActivity extends Activity {
 		});
 		ll.addView(btn);
 		
-		for (int i=1; i<=7; i++) {
+		for (int i=1; i<=6; i++) {
 			btn = new Button(this);
 			btn.setText("Sample " + i);
 			btn.setId(i);
@@ -76,7 +76,6 @@ public class MainActivity extends Activity {
 				case 4: startActivity(new Intent(MainActivity.this, Sample4Activity.class)); break;
 				case 5: startActivity(new Intent(MainActivity.this, Sample5Activity.class)); break;
 				case 6: startActivity(new Intent(MainActivity.this, Sample6Activity.class)); break;
-				case 7: startActivity(new Intent(MainActivity.this, Sample7Activity.class)); break;
 			}
 		}
 	};

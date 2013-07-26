@@ -7,11 +7,11 @@ import android.app.Application;
 import android.net.http.HttpResponseCache;
 import android.os.Build;
 
-import com.therealjoshua.essentials.logger.Log;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader;
 import com.therealjoshua.essentials.bitmaploader.Locator;
 import com.therealjoshua.essentials.bitmaploader.cache.BitmapLruCache;
 import com.therealjoshua.essentials.bitmaploader.cache.DiskLruCacheFacade;
+import com.therealjoshua.essentials.logger.Log;
 
 public class App extends Application {
 	

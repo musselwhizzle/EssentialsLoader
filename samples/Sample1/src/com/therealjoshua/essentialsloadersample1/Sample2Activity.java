@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -23,6 +22,7 @@ import com.therealjoshua.essentials.bitmaploader.BitmapLoader.ErrorSource;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.LoadRequest;
 import com.therealjoshua.essentials.bitmaploader.Locator;
 import com.therealjoshua.essentials.bitmaploader.binders.SingleViewBinder;
+import com.therealjoshua.essentials.bitmaploader.processors.InverseProcessor;
 
 /*
  * A view pager using the bitmap loader
@@ -51,13 +51,14 @@ public class Sample2Activity extends Activity {
 		private MyAdapter(Context context) {
 			this.context = context;
 			width = context.getResources().getDisplayMetrics().widthPixels;
+			height = (int)(width / (16/9f));
 			
 			// if the screen width is less than the loaded image width
 			// less compress the image and save memory
 			if (width < REMOTE_IMAGE_WIDTH_PX) {
 				inSampleSize = 2;
 			}
-			height = (int)(width / (16/9f));
+			
 		}
 		
 		@Override
@@ -107,7 +108,10 @@ public class Sample2Activity extends Activity {
 			BitmapFactory.Options opts = new BitmapFactory.Options();
 			binder.setFaultResource(context, R.drawable.error_k02);
 			opts.inSampleSize = inSampleSize;
-			binder.load(Images.ANIMAL_IMAGES[position], opts);
+			binder.build(Images.ANIMAL_IMAGES[position]).
+				setBitmapFactoryOptions(opts).
+				addBitmapProcessor(new InverseProcessor()).
+				load();
 			layout.setTag(binder);
 			
 			container.addView(layout);
@@ -127,9 +131,9 @@ public class Sample2Activity extends Activity {
 		}
 		
 		@Override
-		public Cancelable load(String url, BitmapFactory.Options options, Rect outPadding) {
+		public Cancelable load(LoadRequest request) {
 			loadingView.setVisibility(View.VISIBLE);
-			return super.load(url, options, outPadding);
+			return super.load(request);
 		}
 		
 		@Override

@@ -18,13 +18,16 @@ package com.therealjoshua.essentials.bitmaploader.binders;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.view.animation.Animation;
 
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader;
+import com.therealjoshua.essentials.bitmaploader.Locator;
+import com.therealjoshua.essentials.bitmaploader.BitmapLoader.BitmapSource;
+import com.therealjoshua.essentials.bitmaploader.BitmapLoader.Callback;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.Cancelable;
+import com.therealjoshua.essentials.bitmaploader.BitmapLoader.ErrorSource;
+import com.therealjoshua.essentials.bitmaploader.BitmapLoader.LoadRequest;
 
 public class SingleViewBinder implements BitmapLoader.Callback {
 	private BitmapLoader loader;
@@ -38,6 +41,10 @@ public class SingleViewBinder implements BitmapLoader.Callback {
 	
 	private Drawable faultDrawable;
 	private Drawable loadingDrawable;
+	
+	public SingleViewBinder() {
+		this(Locator.getBitmapLoader());
+	}
 	
 	public SingleViewBinder(BitmapLoader loader) {
 		this.loader = loader;
@@ -67,17 +74,23 @@ public class SingleViewBinder implements BitmapLoader.Callback {
 		loadingDrawable = context.getResources().getDrawable(resId);
 	}
 	
+	public BitmapLoader.LoadRequest build(String uri) {
+		ViewBinderLoadRequest r = new ViewBinderLoadRequest(this, loader);
+		r.setUri(uri);
+		return r;
+	}
+	
+	public Cancelable load(BitmapLoader.LoadRequest request) {
+		if (request.getCallback() == null) {
+			request.setCallback(this);
+		} else {
+			request.setCallback(new MyCallback(this, request.getCallback()));
+		}
+		return loader.load(request);
+	}
+	
 	public Cancelable load(String uri) {
-		return load(uri, null, null);
-	}
-	
-	public Cancelable load(String uri, BitmapFactory.Options options) {
-		return load(uri, options, null);
-	}
-	
-	public Cancelable load(String uri, BitmapFactory.Options options, Rect outPadding) {
-		quitable = loader.load(uri, this, options, outPadding);
-		return quitable;
+		return build(uri).load();
 	}
 	
 	public void cancel() {
@@ -90,6 +103,41 @@ public class SingleViewBinder implements BitmapLoader.Callback {
 
 	@Override
 	public void onError(Throwable error, BitmapLoader.ErrorSource source, BitmapLoader.LoadRequest request) {
+	}
+	
+	public static class ViewBinderLoadRequest extends BitmapLoader.LoadRequest {
+		private SingleViewBinder binder;
+		private ViewBinderLoadRequest(SingleViewBinder binder, BitmapLoader loader) {
+			super(loader);
+			this.binder = binder;
+		}
+		
+		@Override
+		public Cancelable load() {
+			return binder.load(this);
+		}
+	}
+	
+	private static class MyCallback implements Callback {
+		private Callback callback;
+		private SingleViewBinder binder;
+		
+		private MyCallback(SingleViewBinder binder, Callback callback) {
+			this.binder = binder;
+			this.callback = callback;
+		}
+		
+		@Override
+		public void onSuccess(Bitmap bitmap, BitmapSource source, LoadRequest request) {
+			binder.onSuccess(bitmap, source, request);
+			if (callback != null) callback.onSuccess(bitmap, source, request);
+		}
+
+		@Override
+		public void onError(Throwable error, ErrorSource source, LoadRequest request) {
+			binder.onError(error, source, request);
+			if (callback != null) callback.onError(error, source, request);
+		}
 	}
 	
 }

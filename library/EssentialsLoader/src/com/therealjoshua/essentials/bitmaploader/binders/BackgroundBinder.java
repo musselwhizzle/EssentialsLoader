@@ -19,8 +19,6 @@ package com.therealjoshua.essentials.bitmaploader.binders;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -28,7 +26,6 @@ import android.view.View;
 
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.BitmapSource;
-import com.therealjoshua.essentials.bitmaploader.BitmapLoader.Callback;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.Cancelable;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.ErrorSource;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.LoadRequest;
@@ -40,11 +37,10 @@ public class BackgroundBinder extends GroupViewBinder<View> {
 	}
 	
 	@Override
-	public Cancelable load(View view, String uri, Callback callback,  
-			BitmapFactory.Options options, Rect outPadding) {
+	public Cancelable load(View view, LoadRequest request) {
 		cancel(view);
 		setBackground(view, getLoadingDrawable());
-		return super.load(view, uri, callback, options, outPadding);
+		return super.load(view, request);
 	}
 	
 	@SuppressWarnings("deprecation")

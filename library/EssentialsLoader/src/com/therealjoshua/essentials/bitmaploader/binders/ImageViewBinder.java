@@ -18,35 +18,36 @@ package com.therealjoshua.essentials.bitmaploader.binders;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.widget.ImageView;
 
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.BitmapSource;
-import com.therealjoshua.essentials.bitmaploader.BitmapLoader.Callback;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.Cancelable;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.ErrorSource;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.LoadRequest;
+import com.therealjoshua.essentials.bitmaploader.Locator;
 
 /**
  * A binder used to associate the loaded image with an ImageView
  */
 public class ImageViewBinder extends GroupViewBinder<ImageView> {
 	
+	public ImageViewBinder(Context context) {
+		this(context, Locator.getBitmapLoader());
+	}
+	
 	public ImageViewBinder(Context context, BitmapLoader loader) {
 		super(context, loader);
 	}
 	
 	@Override
-	public Cancelable load(ImageView imageView, String uri, Callback callback, 
-			BitmapFactory.Options options, Rect outPadding) {
+	public Cancelable load(ImageView imageView, LoadRequest request) {
 		cancel(imageView);
 		if (imageView == null) return null;
 		imageView.setImageDrawable(getLoadingDrawable());
-		return super.load(imageView, uri, callback, options, outPadding);
+		return super.load(imageView, request);
 	}
 
 	@Override

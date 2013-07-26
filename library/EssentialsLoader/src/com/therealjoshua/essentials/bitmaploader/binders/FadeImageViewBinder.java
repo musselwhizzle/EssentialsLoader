@@ -18,8 +18,6 @@ package com.therealjoshua.essentials.bitmaploader.binders;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory.Options;
-import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
@@ -27,8 +25,6 @@ import android.widget.ImageView;
 
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.BitmapSource;
-import com.therealjoshua.essentials.bitmaploader.BitmapLoader.Callback;
-import com.therealjoshua.essentials.bitmaploader.BitmapLoader.Cancelable;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.ErrorSource;
 import com.therealjoshua.essentials.bitmaploader.BitmapLoader.LoadRequest;
 
@@ -38,6 +34,10 @@ import com.therealjoshua.essentials.bitmaploader.BitmapLoader.LoadRequest;
  */
 public class FadeImageViewBinder extends ImageViewBinder {
 	private int transitionDuration = 250;
+	
+	public FadeImageViewBinder(Context context) {
+		super(context);
+	}
 	
 	public FadeImageViewBinder(Context context, BitmapLoader loader) {
 		super(context, loader);
@@ -58,12 +58,6 @@ public class FadeImageViewBinder extends ImageViewBinder {
 	 */
 	public void setTransitionDuration(int transitionDuration) {
 		this.transitionDuration = transitionDuration;
-	}
-	
-	@Override
-	public Cancelable load(ImageView imageView, String uri, Callback callback, 
-			Options options, Rect outPadding) {
-		return super.load(imageView, uri, callback, options, outPadding);
 	}
 	
 	@Override

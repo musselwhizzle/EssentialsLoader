@@ -11,7 +11,6 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 
-import com.therealjoshua.essentials.bitmaploader.Locator;
 import com.therealjoshua.essentials.bitmaploader.binders.FadeImageViewBinder;
 import com.therealjoshua.essentials.bitmaploader.binders.ImageViewBinder;
 
@@ -56,17 +55,17 @@ public class Sample1Activity extends Activity {
 		private MyAdapter(Context context) {
 			this.context = context;
 			width = context.getResources().getDisplayMetrics().widthPixels;
+			height = (int)(width / (16/9f));
 			
 			// if the screen width is less than the loaded image width
 			// lets compress the image and save memory
 			if (width < REMOTE_IMAGE_WIDTH_PX) {
 				inSampleSize = 2;
 			}
-			height = (int)(width / (16/9f));
 			
 			// create a fade binder which is cross fade in the loaded image with 
 			// what's currently in the image view
-			binder = new FadeImageViewBinder(context, Locator.getBitmapLoader());
+			binder = new FadeImageViewBinder(context);
 			binder.setLoadingResource(R.drawable.gray_k02);
 			binder.setFaultResource(R.drawable.error_k02);
 		}
@@ -99,7 +98,7 @@ public class Sample1Activity extends Activity {
 			String url = getItem(position);
 			BitmapFactory.Options opts = new BitmapFactory.Options();
 			opts.inSampleSize = inSampleSize;
-			binder.load(imageView, url, opts);
+			binder.build(imageView, url).setBitmapFactoryOptions(opts).load();
 			return imageView;
 		}
 		
